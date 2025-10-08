@@ -12,9 +12,9 @@ app.add_middleware(
 )
 
 records = [
-    {"document_name": "Some Contract", "category": "Legal"},
+    {"document_name": "New Contract", "category": "Legal"},
     {"document_name": "New Project", "category": "Projects"},
-    {"document_name": "New Study on Something", "category": "Research Papers"},
+    {"document_name": "New Study", "category": "Research Papers"},
 ]
 
 @app.get("/records")

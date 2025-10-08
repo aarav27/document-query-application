@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Table } from "@chakra-ui/react"
-import './App.css'
+import '@/styles/App.css'
+
 
 interface RecordType {
   document_name: string;
