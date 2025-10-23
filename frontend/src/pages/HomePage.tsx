@@ -102,7 +102,9 @@ export default function HomePage() {
           <Link to='/add-category'>
             <button className='dashboard-button add-category-button'>Add Category</button>
           </Link>
-          <Link to='/add-document'>
+          <Link 
+            to='/add-document'
+            state={{ categories: categories }}>
             <button className='dashboard-button add-document-button'>Add Document</button>
           </Link>
         </div>
@@ -110,7 +112,7 @@ export default function HomePage() {
 
       {/* Category Filter Dropdown */}
       <div className='category-filter'>
-        <label htmlFor="category">Filter by Category: </label>
+        <label htmlFor="category">Filter by Category:</label>
         <select
           id="category"
           className="category-dropdown"

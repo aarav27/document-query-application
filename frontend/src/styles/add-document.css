@@ -1,5 +1,5 @@
 .add-document-page {
-    max-width: 500px;
+    max-width: 1000px;
     margin: 2rem auto;
     padding: 1rem;
     border: 1px solid #ccc;
@@ -11,7 +11,7 @@
     font-size: 4rem;
 }
 
-.add-document-button {
+.upload-document-button {
     padding: 1rem 2rem;
     font-size: 16px;
     cursor: pointer;
@@ -19,4 +19,17 @@
     color: white;
     border: none;
     background-color: #1879e1;
+}
+
+.feild {
+  margin: 1rem 0;
+  font-size: large;
+}
+
+.category-dropdown {
+  background-color: #f0f4f8;
+  padding: 0.4rem 0.6rem;
+  margin-left: 15px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
 }

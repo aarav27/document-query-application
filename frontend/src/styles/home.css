@@ -68,10 +68,13 @@ button.table-cell:hover {
 
 .category-filter {
   margin: 1rem 0;
+  font-size: large;
 }
 
 .category-dropdown {
+  background-color: #f0f4f8;
   padding: 0.4rem 0.6rem;
+  margin-left: 15px;
   border-radius: 6px;
   border: 1px solid #ccc;
 }
@@ -81,6 +84,7 @@ button.table-cell:hover {
   border-radius: 6px;
   margin-bottom: 1rem;
   overflow: hidden;
+  font-size: large;
 }
 
 .category-header {
@@ -89,6 +93,7 @@ button.table-cell:hover {
   display: flex;
   justify-content: space-between;
   cursor: pointer;
+  font-size: x-large;
 }
 
 .category-header:hover {
