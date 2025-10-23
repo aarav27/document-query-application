@@ -12,42 +12,37 @@
     font-size: 4rem;
 }
 
-.add-document-button {
-    padding: 1rem 2rem;
+.dashboard-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.dashboard-button {
+    padding: 0.7rem 0.8rem;
     font-size: 16px;
     cursor: pointer;
     border-radius: 5px;
     color: white;
     border: none;
     background-color: #1879e1;
+    width: 160px;
+}
+
+.add-category-button {
+    background-color: #28a745;
+}
+
+.add-category-button:hover {
+    background-color: #1e7e34;
+}
+
+.add-document-button {
+    background-color: #1879e1;
 }
 
 .add-document-button:hover {
     background-color: #004187;
-}
-
-.table-body {
-    font-size: 18px;
-    text-align: center; 
-}
-
-.table-header{
-    font-size: 20px;
-}
-
-.table-cell-header {
-    text-align: center; 
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid #e0e0e0;
-    color: white;
-}
-
-.table-row{
-    padding-bottom: 1rem;
-}
-
-.table-row:hover {
-    background-color: #84d5ec; /* subtle hover */
 }
 
 .table-cell {
@@ -68,5 +63,70 @@ button.table-cell {
 }
 
 button.table-cell:hover {
-    background-color: #2a238a; /* darker on hover */
+    background-color: #2a238a;
+} 
+
+.category-filter {
+  margin: 1rem 0;
+}
+
+.category-dropdown {
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.category-section {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.category-header {
+  background-color: #f5f5f5;
+  padding: 0.6rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.category-header:hover {
+    background-color: #c1ebcb;
+}
+
+.document-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.document-table th,
+.document-table td {
+  padding: 0.6rem;
+  border-top: 1px solid #ddd;
+  text-align: left;
+}
+
+.document-button {
+  color: white;
+  border: none;
+  padding: 0.5rem 1.4rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.view-button {
+  background-color: #3182ce;
+}
+
+.view-button:hover {
+  background-color: #004187;
+}
+
+.delete-button {
+  background-color: #eb5656;
+}
+
+.delete-button:hover {
+  background-color: #a33c3c;
 }

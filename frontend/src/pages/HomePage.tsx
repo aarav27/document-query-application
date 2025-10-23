@@ -1,77 +1,176 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
-import { Table } from "@chakra-ui/react"
 import '@/styles/home.css'
 
-interface RecordType {
-  document_name: string;
+interface DocumentType {
+  id: number;
+  name: string;
+  description: string;
   category: string;
 }
 
+interface CategoryType{
+  category: string;
+  document_ids : number[]
+}
+
+interface JoinedCategory {
+  category: string;
+  documents: DocumentType[];
+}
+
+interface CategoryDictType{
+  [category: string] : DocumentType[];
+}
+
 export default function HomePage() {
-  const [records, setRecords] = useState<RecordType[]>([]);
+  const [categories, setCategories] = useState<CategoryDictType>({});
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    const fetchRecords = async() => {
-      try{
-        const response = await fetch("http://127.0.0.1:8000/records")
-        if (!response.ok){
-          throw new Error(`Error Status: ${response.status}`)
+    const fetchAll = async () => {
+      try {
+        // 1. Fetch all documents
+        const document_response = await fetch("http://127.0.0.1:8000/documents");
+        if (!document_response.ok) {
+          throw new Error(`Error Status: ${document_response.status}`);
         }
-        const data = await response.json()
-        setRecords(data)
-      } catch {
-        setError(true)
-        return new Error("Request Failed")
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchRecords()
-  }, [])
+        const document_data = await document_response.json();
+        
+        // 2. Fetch all categories
+        const response = await fetch("http://127.0.0.1:8000/categories");
+        if (!response.ok) {
+          throw new Error(`Error Status: ${response.status}`);
+        }
+        const category_data = await response.json();
 
-  if(loading){
-    return <div></div>
+        // 3. Perform join on categories and documents
+        const documentMap: Record<number, DocumentType> = {};
+        document_data.forEach((doc : DocumentType) => {
+          documentMap[doc.id] = doc;
+        });
+        const joined : JoinedCategory[] = category_data.map((cat : CategoryType) => ({
+          category: cat.category,
+          documents: cat.document_ids.map((id : number) => documentMap[id]).filter(Boolean),
+        }));
+        const categoryDict: CategoryDictType = {};
+        joined.forEach((cat : JoinedCategory) => {
+          categoryDict[cat.category] = cat.documents;
+        });
+        
+        setCategories(categoryDict);
+
+      } catch {
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAll();
+  }, []);
+
+  const toggleCategory = (category: string) => {
+    setExpandedCategory(expandedCategory === category ? null : category);
+  };
+
+  const deleteDocument = (category: string, document: DocumentType) => {
+    if (confirm("Are you sure you want to delete this document")){
+      setCategories((prevCategories) => ({
+        ...prevCategories,
+        [category]: prevCategories[category].filter((doc : DocumentType) => doc.id !== document.id)
+      }));
+    }
   }
-  else if(error){
-    return <div>Error</div>
-  }
+
+  const displayedCategories =
+    selectedCategory === 'All' ? Object.keys(categories) : [selectedCategory];
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error loading documents</div>;
+
   return (
     <div>
       <div className='dashboard-top'>
-        <h1 className='dashboard-title'>
-          Document Dashboard
-        </h1>
-        <Link to='/add-document'>
-          <button className='add-document-button'>Add Document</button>
-        </Link>
+        {/* Title */}
+        <h1 className='dashboard-title'>Document Dashboard</h1>
+
+        {/* Buttons container */}
+        <div className='dashboard-buttons'>
+          <Link to='/add-category'>
+            <button className='dashboard-button add-category-button'>Add Category</button>
+          </Link>
+          <Link to='/add-document'>
+            <button className='dashboard-button add-document-button'>Add Document</button>
+          </Link>
+        </div>
       </div>
-      <div>
-        <Table.Root variant="outline" bg="blue.200">
-          <Table.Header className="table-header">
-            <Table.Row>
-              <Table.ColumnHeader className="table-cell-header">Document Name</Table.ColumnHeader>
-              <Table.ColumnHeader className="table-cell-header">Category</Table.ColumnHeader>
-              <Table.ColumnHeader className="table-cell-header">View Document</Table.ColumnHeader>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body className="table-body">
-            {records.map((record) => (
-              <Table.Row className="table-row">
-                <Table.Cell className="table-cell">{record.document_name}</Table.Cell>
-                <Table.Cell className="table-cell">{record.category}</Table.Cell>
-                <Table.Cell className="table-cell">
-                  <button className="table-cell">View</button>
-                </Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table.Root>
+
+      {/* Category Filter Dropdown */}
+      <div className='category-filter'>
+        <label htmlFor="category">Filter by Category: </label>
+        <select
+          id="category"
+          className="category-dropdown"
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+        >
+          <option value="All">All</option>
+          {Object.keys(categories).map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Documents by Category */}
+      <div className='category-sections'>
+        {displayedCategories.map((category) => (
+          <div key={category} className='category-section'>
+            <div
+              className='category-header'
+              onClick={() => toggleCategory(category)}
+            >
+              <h2>{category}</h2>
+              <span>{expandedCategory === category ? '▲' : '▼'}</span>
+            </div>
+
+            {expandedCategory === category && (
+              <table className='document-table'>
+                <thead>
+                  <tr>
+                    <th>Document Name</th>
+                    <th>Description</th>
+                    <th>View</th>
+                    <th>Delete</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {categories[category]?.map((record, idx) => (
+                    <tr key={idx}>
+                      <td>{record.name}</td>
+                      <td>{record.description}</td>
+                      <td>
+                        <button className="document-button view-button">View</button>
+                      </td>
+                      <td>
+                        <button 
+                          className="document-button delete-button"
+                          onClick={() => deleteDocument(category, record)}
+                        >
+                          Delete</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        ))}
       </div>
     </div>
-  )
-  
-
+  );
 }
