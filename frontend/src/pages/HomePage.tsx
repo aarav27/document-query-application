@@ -30,6 +30,9 @@ export default function HomePage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState(false);
 
+  const [showAddCategoryPopUp, setshowAddCategoryPopUp] = useState<boolean>(false);
+  const [newCategoryName, setNewCategoryName] = useState<string>("");
+
   useEffect(() => {
     const fetchAll = async () => {
       try {
@@ -76,7 +79,16 @@ export default function HomePage() {
     setExpandedCategory(expandedCategory === category ? null : category);
   };
 
-  const deleteDocument = (category: string, document: DocumentType) => {
+  const handleAddCategory = () => {
+    if (categories[newCategoryName]) { 
+      return alert("Category already exists");
+    }
+    setCategories(prev => ({ ...prev, [newCategoryName]: [] }));
+    setshowAddCategoryPopUp(false);
+    setNewCategoryName("");
+  };
+
+  const handleDeleteDocument = (category: string, document: DocumentType) => {
     if (confirm("Are you sure you want to delete this document")){
       setCategories((prevCategories) => ({
         ...prevCategories,
@@ -99,9 +111,11 @@ export default function HomePage() {
 
         {/* Buttons container */}
         <div className='dashboard-buttons'>
-          <Link to='/add-category'>
-            <button className='dashboard-button add-category-button'>Add Category</button>
-          </Link>
+          <button 
+            className='dashboard-button add-category-button'
+            onClick={() => setshowAddCategoryPopUp(true)}
+          >
+            Add Category</button>
           <Link 
             to='/add-document'
             state={{ categories: categories }}>
@@ -161,7 +175,7 @@ export default function HomePage() {
                       <td>
                         <button 
                           className="document-button delete-button"
-                          onClick={() => deleteDocument(category, record)}
+                          onClick={() => handleDeleteDocument(category, record)}
                         >
                           Delete</button>
                       </td>
@@ -173,6 +187,26 @@ export default function HomePage() {
           </div>
         ))}
       </div>
+
+      {showAddCategoryPopUp && (
+      <div className="popup-overlay">
+        <div className="popup-content">
+          <label>
+            New Category:
+            <input
+              type="text"
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+            />
+          </label>
+
+          <div className="popup-buttons">
+            <button className="popup-add-category-button" onClick={handleAddCategory}>Add Category</button>
+            <button className="popup-cancel-button" onClick={() => setshowAddCategoryPopUp(false)}>Cancel</button>
+          </div>
+        </div>
+      </div>
+    )}
     </div>
   );
 }
