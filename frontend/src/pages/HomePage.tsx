@@ -6,15 +6,16 @@ interface DocumentType {
   id: number;
   name: string;
   description: string;
-  category: string;
+  category_id: number;
 }
 
 interface CategoryType{
-  category: string;
-  document_ids : number[]
+  id: number;
+  name: string;
 }
 
-interface JoinedCategory {
+interface CategoryDocumentsType {
+  id: number;
   category: string;
   documents: DocumentType[];
 }
@@ -51,16 +52,20 @@ export default function HomePage() {
         const category_data = await response.json();
 
         // 3. Perform join on categories and documents
-        const documentMap: Record<number, DocumentType> = {};
+        const documentMap: Record<number, DocumentType[]> = {};
         document_data.forEach((doc : DocumentType) => {
-          documentMap[doc.id] = doc;
+          if(!documentMap[doc.category_id]){
+            documentMap[doc.category_id] = []
+          }
+          documentMap[doc.category_id].push(doc);
         });
-        const joined : JoinedCategory[] = category_data.map((cat : CategoryType) => ({
-          category: cat.category,
-          documents: cat.document_ids.map((id : number) => documentMap[id]).filter(Boolean),
+        const category_documents : CategoryDocumentsType[] = category_data.map((cat : CategoryType) => ({
+          id: cat.id,
+          category: cat.name,
+          documents: documentMap[cat.id]
         }));
         const categoryDict: CategoryDictType = {};
-        joined.forEach((cat : JoinedCategory) => {
+        category_documents.forEach((cat : CategoryDocumentsType) => {
           categoryDict[cat.category] = cat.documents;
         });
         
