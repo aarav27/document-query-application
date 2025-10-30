@@ -14,7 +14,7 @@ class Document(Base):
     __tablename__ = "documents"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String)
+    name = Column(String, nullable=False)
     description = Column(String)
     category_id = Column(Integer, ForeignKey("categories.id"))
 

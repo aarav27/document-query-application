@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -27,3 +27,10 @@ async def read_documents(db: AsyncSession = Depends(get_db)):
 @app.get("/categories", response_model=list[schemas.Category])
 async def read_categories(db: AsyncSession = Depends(get_db)):
     return await crud.get_categories(db)
+
+@app.post("/documents", response_model=schemas.Document)
+async def create_document(document: schemas.DocumentCreate, db: AsyncSession = Depends(get_db)):
+    try: 
+        return await crud.post_document(document, db)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
