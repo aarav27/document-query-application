@@ -33,3 +33,49 @@
   border-radius: 6px;
   border: 1px solid #ccc;
 }
+
+.upload-container {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #1879e1;
+  border-radius: 10px;
+  padding: 2rem;
+  background-color: #f0f4f8;
+  color: #1879e1;
+  cursor: pointer;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  text-align: center;
+}
+
+.upload-label:hover {
+  background-color: #e8f3ff;
+  border-color: #0a6ed1;
+}
+
+.upload-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.upload-text {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-top: 0.2rem;
+}
+
+.file-input {
+  display: none;
+}
+
+.file-name {
+  color: #333;
+  font-weight: 600;
+}

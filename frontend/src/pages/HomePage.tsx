@@ -20,12 +20,12 @@ interface CategoryDocumentsType {
   documents: DocumentType[];
 }
 
-interface CategoryDictType{
+interface CategoryDocumentsDictType{
   [category: string] : DocumentType[];
 }
 
 export default function HomePage() {
-  const [categories, setCategories] = useState<CategoryDictType>({});
+  const [categories, setCategories] = useState<CategoryDocumentsDictType>({});
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -64,7 +64,7 @@ export default function HomePage() {
           category: cat.name,
           documents: documentMap[cat.id]
         }));
-        const categoryDict: CategoryDictType = {};
+        const categoryDict: CategoryDocumentsDictType = {};
         category_documents.forEach((cat : CategoryDocumentsType) => {
           categoryDict[cat.category] = cat.documents;
         });
