@@ -1,5 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from . import models, schemas, crud
+from .database import engine, Base, get_db
 
 app = FastAPI()
 
@@ -11,24 +15,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-categories = [
-    {"category": "Legal", "document_ids": [1, 2]},
-    {"category": "Projects", "document_ids": [3]},
-    {"category": "Research Papers", "document_ids": [4, 5]}
-]
+@app.on_event("startup")
+async def startup():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
-documents = [
-    {"id": 1, "name": "Contract 1", "description": "A", "category": "Legal"},
-    {"id": 2, "name": "Contract 2", "description": "B", "category": "Legal"},
-    {"id": 3, "name": "New Project", "description": "C", "category": "Projects"},
-    {"id": 4, "name": "New Study", "description": "D", "category": "Research Papers"},
-    {"id": 5, "name": "Old Study", "description": "E", "category": "Research Papers"},
-]
+@app.get("/documents", response_model=list[schemas.Document])
+async def read_documents(db: AsyncSession = Depends(get_db)):
+    return await crud.get_documents(db)
 
-@app.get("/documents")
-def get_documents():
-    return documents
-
-@app.get("/categories")
-def get_categories():
-    return categories
+@app.get("/categories", response_model=list[schemas.Category])
+async def read_categories(db: AsyncSession = Depends(get_db)):
+    return await crud.get_categories(db)
