@@ -31,3 +31,13 @@ async def delete_document(document_id: int, db: AsyncSession):
 async def get_categories(db: AsyncSession):
     result = await db.execute(select(models.Category))
     return result.scalars().all()
+
+async def post_category(category: schemas.CategoryCreate, db: AsyncSession):
+    new_category = models.Category(
+        name=category.name
+    )
+
+    db.add(new_category)
+    await db.commit()
+    await db.refresh(new_category)
+    return new_category

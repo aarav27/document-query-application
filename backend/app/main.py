@@ -21,7 +21,7 @@ async def startup():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-
+# Documents
 @app.get("/documents", response_model=list[schemas.Document])
 async def read_documents(db: AsyncSession = Depends(get_db)):
     return await crud.get_documents(db)
@@ -35,11 +35,17 @@ async def delete_document(document_id: int, db: AsyncSession = Depends(get_db)):
     return await crud.delete_document(document_id, db)
 
 
+# Categories
 @app.get("/categories", response_model=list[schemas.Category])
 async def read_categories(db: AsyncSession = Depends(get_db)):
     return await crud.get_categories(db)
 
-    
+@app.post("/categories", response_model=schemas.Category)
+async def create_category(category: schemas.CategoryCreate, db: AsyncSession = Depends(get_db)):
+    return await crud.post_category(category, db)
+
+
+# S3 Presigned URLs  
 @app.post("/upload-url")
 async def generate_upload_url(filename: str):
     upload_url = s3_client.generate_presigned_url(

@@ -84,13 +84,34 @@ export default function HomePage() {
     setExpandedCategory(expandedCategory === category ? null : category);
   };
 
-  const handleAddCategory = () => {
+  const handleAddCategory = async () => {
     if (categories[newCategoryName]) { 
       return alert("Category already exists");
     }
-    setCategories(prev => ({ ...prev, [newCategoryName]: [] }));
-    setshowAddCategoryPopUp(false);
-    setNewCategoryName("");
+    const newCategory = {
+      name: newCategoryName
+    };
+
+    try {
+      const add_category_response = await fetch("http://127.0.0.1:8000/categories", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newCategory),
+      });
+
+      if(add_category_response.ok){
+        alert("Added new category")
+        setCategories(prev => ({ ...prev, [newCategoryName]: [] }));
+        setshowAddCategoryPopUp(false);
+        setNewCategoryName("");
+      }
+
+    } catch(error) {
+      alert("Failed to add category")
+      throw error
+    }
   };
 
   const handleDeleteDocument = async (category: string, document: DocumentType) => {
@@ -100,15 +121,16 @@ export default function HomePage() {
         [category]: prevCategories[category].filter((doc : DocumentType) => doc.id !== document.id)
       }));
 
-      const delete_response = await fetch(`http://127.0.0.1:8000/documents/${document.id}`, {
-        method: "DELETE",
-        headers: {
-            "Content-Type": "application/json",
-        },
-      });
-      if(!delete_response.ok){
-        alert("Document deletion failed")
-        throw new Error(`Error Status: ${delete_response.status}`);
+      try {
+        await fetch(`http://127.0.0.1:8000/documents/${document.id}`, {
+          method: "DELETE",
+          headers: {
+              "Content-Type": "application/json",
+          },
+        });
+      } catch (error) {
+          alert("Failed to delete document")
+          throw error
       }
     }
   }
