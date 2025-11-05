@@ -121,9 +121,7 @@ export default function HomePage() {
             onClick={() => setshowAddCategoryPopUp(true)}
           >
             Add Category</button>
-          <Link 
-            to='/add-document'
-            state={{ categories: categories }}>
+          <Link to='/add-document'>
             <button className='dashboard-button add-document-button'>Add Document</button>
           </Link>
         </div>

@@ -11,14 +11,26 @@
   font-size: 4rem;
 }
 
-.upload-document-button {
-  background-color: #1879e1;
+.button-container {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+.buttons {
   color: white;
   padding: 1rem 2rem;
   font-size: 16px;
   cursor: pointer;
   border-radius: 5px;
   border: none;
+}
+
+.cancel-button{
+  background-color: #eb5656;
+  margin-left: auto
+}
+.upload-document-button {
+  background-color: #1879e1;
 }
 
 .feild {

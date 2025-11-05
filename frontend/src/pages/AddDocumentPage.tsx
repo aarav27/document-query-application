@@ -1,40 +1,53 @@
-import { useState } from 'react'
-import { useLocation, useNavigate} from 'react-router-dom';
+import { useEffect, useState } from 'react'
+import { Link, useNavigate} from 'react-router-dom';
 import '@/styles/add-document.css'
 
-
-interface DocumentType {
-    id: number;
-    name: string;
-    description: string;
-    category_id: number;
-}
-
-interface CategoryDictType{
-    [category: string] : DocumentType[];
+interface CategoryType{
+  id: number;
+  name: string;
 }
 
 export default function AddDocumentPage(){
-    const location = useLocation();
     const navigate = useNavigate();
-    const state = location.state as { categories: CategoryDictType };
-    const categories = state?.categories || {};
+    const [categories, setCategories] = useState<CategoryType[]>([])
 
     const [documentDescription, setDocumentDescription] = useState<string>("");
     const [selectedCategory, setSelectedCategory] = useState<string>("");
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
-    const uploadDocument = async () => {
-        if (!selectedCategory){
-            alert("Please enter a selected category");
-            return;
+    useEffect(() => {
+        const fetchCategories = async () => {
+            const category_response = await fetch ("http://127.0.0.1:8000/categories")
+            if (!category_response.ok){
+                throw new Error(`Error Status: ${category_response.status}`);
+            }
+            const response_data = await category_response.json()
+            const category_data = response_data.map((category : CategoryType) => {
+                return category
+            });
+            setCategories(category_data)
+
+            if (category_data.length > 0){
+                setSelectedCategory(category_data[0].name)
+            }
         }
+        fetchCategories();
+    }, [])
+
+    const uploadDocument = async () => {
         if (!uploadedFile){
             alert("Please upload a PDF file");
             return;
         }
-        const categoryId = categories[selectedCategory][0]?.category_id;
-        if (!categoryId) {
+        if (categories.length == 0){
+            alert("No categories to select")
+        }
+        if (!selectedCategory){
+            alert("Please select category");
+            return;
+        }
+        const categoryObj = categories.find((cat : CategoryType) => cat.name == selectedCategory)
+        if (!categoryObj) {
             alert("Invalid category");
             return;
         }
@@ -42,7 +55,7 @@ export default function AddDocumentPage(){
         const newDocument = {
             name: uploadedFile.name,
             description: documentDescription,
-            category_id: categoryId
+            category_id: categoryObj.id
         };
         
         try {
@@ -54,7 +67,6 @@ export default function AddDocumentPage(){
                 body: JSON.stringify(newDocument),
             });
 
-            console.log(response)
             if (response.ok) {
                 alert("Document Added")
                 navigate("/");
@@ -70,32 +82,10 @@ export default function AddDocumentPage(){
     return (
         <div className="add-document-page">
             <h2 style={{ textAlign: "center" }} className="add-document-title">Add Document</h2>
-            <form 
-                onSubmit={async () => {await uploadDocument()}}>
-                <label className="feild">
-                    Description Name: 
-                     <input
-                        type="text"
-                        value={documentDescription}
-                        onChange = {(e) => setDocumentDescription(e.target.value)}
-                        style={{ width: "100%", padding: "0.5rem", marginTop: "0.3rem", backgroundColor: "#f0f4f8", fontSize: "large"}}
-                    />
-                </label>
-                <div className='feild'>
-                    <label htmlFor="category">Select Category:</label>
-                    <select
-                        id="category"
-                        className="category-dropdown"
-                        value={selectedCategory}
-                        onChange={(e) => setSelectedCategory(e.target.value)}
-                    >
-                    {Object.keys(categories).map((cat) => (
-                        <option key={cat} value={cat}>
-                            {cat}
-                        </option>
-                    ))}
-                    </select>
-                </div>
+            <form onSubmit={async (e) => {
+                e.preventDefault();
+                await uploadDocument();
+            }}>
                 <div className="feild upload-container">
                     <label htmlFor="file-upload" className="upload-label">
                         {uploadedFile ? (
@@ -117,12 +107,46 @@ export default function AddDocumentPage(){
                         />
                     </label>
                 </div>
-                <button 
-                    className="upload-document-button" 
-                    type="submit"
-                >
-                    Add Document
-                </button>
+                <div className='feild'>
+                    <label htmlFor="category">Select Category:</label>
+                    <select
+                        id="category"
+                        className="category-dropdown"
+                        value={selectedCategory}
+                        onChange={(e) => setSelectedCategory(e.target.value)}
+                    >
+                        <option value="">-- Select a category --</option>
+                        {categories.map((cat) => (
+                            <option key={cat.name} value={cat.name}>
+                                {cat.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <label className="feild">
+                    Description: 
+                    <textarea
+                        value={documentDescription}
+                        onChange={(e) => setDocumentDescription(e.target.value)}
+                        style={{ width: "100%", padding: "0.5rem", marginTop: "0.3rem", backgroundColor: "#f0f4f8", fontSize: "large" }}
+                        rows={4}
+                    />
+                </label>
+                <div className='button-container'>
+                    <Link to='/'>
+                        <button 
+                            className="buttons cancel-button" 
+                        >
+                            Cancel
+                        </button>
+                    </Link>
+                    <button 
+                        className="buttons upload-document-button" 
+                        type="submit"
+                    >
+                        Add Document
+                    </button>
+                </div>
             </form>
         </div>
     )
