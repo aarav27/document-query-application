@@ -21,20 +21,24 @@ async def startup():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
+
 @app.get("/documents", response_model=list[schemas.Document])
 async def read_documents(db: AsyncSession = Depends(get_db)):
     return await crud.get_documents(db)
+
+@app.post("/documents", response_model=schemas.Document)
+async def create_document(document: schemas.DocumentCreate, db: AsyncSession = Depends(get_db)):
+    return await crud.post_document(document, db)
+
+@app.delete("/documents/{document_id}", response_model=dict)
+async def delete_document(document_id: int, db: AsyncSession = Depends(get_db)):
+    return await crud.delete_document(document_id, db)
+
 
 @app.get("/categories", response_model=list[schemas.Category])
 async def read_categories(db: AsyncSession = Depends(get_db)):
     return await crud.get_categories(db)
 
-@app.post("/documents", response_model=schemas.Document)
-async def create_document(document: schemas.DocumentCreate, db: AsyncSession = Depends(get_db)):
-    try: 
-        return await crud.post_document(document, db)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
     
 @app.post("/upload-url")
 async def generate_upload_url(filename: str):

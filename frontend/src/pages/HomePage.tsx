@@ -93,12 +93,23 @@ export default function HomePage() {
     setNewCategoryName("");
   };
 
-  const handleDeleteDocument = (category: string, document: DocumentType) => {
-    if (confirm("Are you sure you want to delete this document")){
+  const handleDeleteDocument = async (category: string, document: DocumentType) => {
+    if (confirm("Confirm to delete this document")){
       setCategories((prevCategories) => ({
         ...prevCategories,
         [category]: prevCategories[category].filter((doc : DocumentType) => doc.id !== document.id)
       }));
+
+      const delete_response = await fetch(`http://127.0.0.1:8000/documents/${document.id}`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+        },
+      });
+      if(!delete_response.ok){
+        alert("Document deletion failed")
+        throw new Error(`Error Status: ${delete_response.status}`);
+      }
     }
   }
 
