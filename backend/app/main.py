@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import models, schemas, crud
 from .database import engine, Base, get_db
+from .s3 import s3_client, AWS_S3_BUCKET
 
 app = FastAPI()
 
@@ -34,3 +35,21 @@ async def create_document(document: schemas.DocumentCreate, db: AsyncSession = D
         return await crud.post_document(document, db)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
+@app.post("/upload-url")
+async def generate_upload_url(filename: str):
+    upload_url = s3_client.generate_presigned_url(
+        ClientMethod="put_object",
+        Params={"Bucket": AWS_S3_BUCKET, "Key": filename},
+        ExpiresIn=60,
+    )
+    return {"upload_url": upload_url, "file_key": filename}
+
+@app.get("/download-url")
+async def generate_download_url(filename: str):
+    download_url = s3_client.generate_presigned_url(
+        ClientMethod="get_object",
+        Params={"Bucket": AWS_S3_BUCKET, "Key": filename},
+        ExpiresIn=60,
+    )
+    return {"download_url": download_url, "file_key": filename}
