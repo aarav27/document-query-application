@@ -1,28 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
 import '@/styles/home.css'
-
-interface DocumentType {
-  id: number;
-  name: string;
-  description: string;
-  category_id: number;
-}
-
-interface CategoryType{
-  id: number;
-  name: string;
-}
-
-interface CategoryDocumentsType {
-  id: number;
-  category: string;
-  documents: DocumentType[];
-}
-
-interface CategoryDocumentsDictType{
-  [category: string] : DocumentType[];
-}
+import type { CategoryType, DocumentType, CategoryDocumentsType, CategoryDocumentsDictType} from '@/util/types';
 
 export default function HomePage() {
   const [categories, setCategories] = useState<CategoryDocumentsDictType>({});
