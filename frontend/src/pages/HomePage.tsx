@@ -138,7 +138,7 @@ export default function HomePage() {
   const displayedCategories =
     selectedCategory === 'All' ? Object.keys(categories) : [selectedCategory];
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div></div>;
   if (error) return <div>Error loading documents</div>;
 
   return (
@@ -189,7 +189,8 @@ export default function HomePage() {
               <h2>{category}</h2>
               <span>{expandedCategory === category ? '▲' : '▼'}</span>
             </div>
-
+            
+            {/* Document Table */}
             {expandedCategory === category && (
               <table className='document-table'>
                 <thead>
@@ -201,17 +202,24 @@ export default function HomePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {categories[category]?.map((record, idx) => (
+                  {categories[category]?.map((document, idx) => (
                     <tr key={idx}>
-                      <td>{record.name}</td>
-                      <td>{record.description}</td>
+                      <td>{document.name}</td>
+                      <td>{document.description}</td>
                       <td>
-                        <button className="document-button view-button">View</button>
+                        <Link
+                          to={`/view-document/${document.id}`}
+                          state={{document, category}}
+                        >
+                          <button 
+                            className="document-button view-button"
+                          >View</button>
+                        </Link>
                       </td>
                       <td>
                         <button 
                           className="document-button delete-button"
-                          onClick={() => handleDeleteDocument(category, record)}
+                          onClick={() => handleDeleteDocument(category, document)}
                         >
                           Delete</button>
                       </td>
@@ -223,7 +231,8 @@ export default function HomePage() {
           </div>
         ))}
       </div>
-
+      
+      {/* Add Category Pop Up */}
       {showAddCategoryPopUp && (
       <div className="popup-overlay">
         <div className="popup-content">
