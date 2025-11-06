@@ -2,9 +2,8 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from . import models, schemas, crud
+from . import schemas, crud
 from .database import engine, Base, get_db
-from .s3 import s3_client, AWS_S3_BUCKET
 
 app = FastAPI()
 
@@ -26,7 +25,7 @@ async def startup():
 async def read_documents(db: AsyncSession = Depends(get_db)):
     return await crud.get_documents(db)
 
-@app.post("/documents", response_model=schemas.Document)
+@app.post("/documents", response_model=schemas.DocumentUpload)
 async def create_document(document: schemas.DocumentCreate, db: AsyncSession = Depends(get_db)):
     return await crud.post_document(document, db)
 
@@ -45,21 +44,11 @@ async def create_category(category: schemas.CategoryCreate, db: AsyncSession = D
     return await crud.post_category(category, db)
 
 
-# S3 Presigned URLs  
-@app.post("/upload-url")
-async def generate_upload_url(filename: str):
-    upload_url = s3_client.generate_presigned_url(
-        ClientMethod="put_object",
-        Params={"Bucket": AWS_S3_BUCKET, "Key": filename},
-        ExpiresIn=60,
-    )
-    return {"upload_url": upload_url, "file_key": filename}
-
-@app.get("/download-url")
-async def generate_download_url(filename: str):
-    download_url = s3_client.generate_presigned_url(
-        ClientMethod="get_object",
-        Params={"Bucket": AWS_S3_BUCKET, "Key": filename},
-        ExpiresIn=60,
-    )
-    return {"download_url": download_url, "file_key": filename}
+# @app.get("/download-url")
+# async def generate_download_url(document : schemas.Document):
+#     download_url = s3_client.generate_presigned_url(
+#         ClientMethod="get_object",
+#         Params={"Bucket": AWS_S3_BUCKET, "Key": document.s3_document_key},
+#         ExpiresIn=60,
+#     )
+#     return {"download_url": download_url}

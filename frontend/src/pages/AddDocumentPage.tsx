@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate} from 'react-router-dom';
 import '@/styles/add-document.css'
+import type { CategoryType, DocumentCreateType, DocumentUploadType } from '@/util/types';
 
-interface CategoryType{
-  id: number;
-  name: string;
-}
+// interface CategoryType{
+//   id: number;
+//   name: string;
+// }
 
 export default function AddDocumentPage(){
     const navigate = useNavigate();
@@ -52,14 +53,14 @@ export default function AddDocumentPage(){
             return;
         }
 
-        const newDocument = {
-            name: uploadedFile.name,
-            description: documentDescription,
-            category_id: categoryObj.id
-        };
-        
         try {
-            const response = await fetch("http://127.0.0.1:8000/documents", {
+            // 1. Add document record to database and generate upload URL
+            const newDocument : DocumentCreateType = {
+                name: uploadedFile.name,
+                description: documentDescription,
+                category_id: categoryObj.id
+            };
+            const add_document_response = await fetch("http://127.0.0.1:8000/documents", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -67,10 +68,20 @@ export default function AddDocumentPage(){
                 body: JSON.stringify(newDocument),
             });
 
-            if (response.ok) {
-                alert("Document Added")
-                navigate("/");
+            // 2. Upload file
+            const document_data : DocumentUploadType = await add_document_response.json()
+            const upload_document_response = await fetch(document_data.upload_url, {
+                method: "PUT",
+                body: uploadedFile,
+                headers: {
+                    "Content-Type": uploadedFile.type,
+                },
+            })
+            if (!upload_document_response.ok){
+                throw new Error(`Error Status: ${upload_document_response.status}`);
             }
+            alert("Document Added")
+            navigate("/");
 
         } catch (error) {
             alert('Failed to upload document');

@@ -12,7 +12,7 @@ export interface DocumentCreateType {
   category_id: number;
 }
 
-export interface DocumentWithUploadURLType {
+export interface DocumentUploadType {
   id: number;
   name: string;
   description: string;

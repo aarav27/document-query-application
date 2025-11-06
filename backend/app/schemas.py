@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 class DocumentBase(BaseModel):
     name: str
@@ -11,9 +11,15 @@ class DocumentCreate(DocumentBase):
 class Document(DocumentBase):
     id: int
     category_id: int
+    s3_document_key: Optional[str] = None
 
     class Config:
         orm_mode = True
+
+class DocumentUpload (DocumentBase):
+    id: int
+    category_id: int
+    upload_url: str
 
 
 class CategoryBase(BaseModel):

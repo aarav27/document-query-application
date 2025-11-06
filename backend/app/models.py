@@ -16,6 +16,7 @@ class Document(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
     description = Column(String)
+    s3_document_key = Column(String)
     category_id = Column(Integer, ForeignKey("categories.id"))
 
     category = relationship("Category", back_populates="documents")
