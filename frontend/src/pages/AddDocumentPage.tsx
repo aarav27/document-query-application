@@ -111,8 +111,16 @@ export default function AddDocumentPage(){
                         <input
                             id="file-upload"
                             type="file"
+                            accept='application/pdf'
                             onChange={(e) => {
-                                if (e.target.files) setUploadedFile(e.target.files[0]);
+                                const new_file = e.target.files?.[0]
+                                if(new_file){
+                                    if(new_file.type != 'application/pdf'){
+                                        alert("Only PDF files are allowed!");
+                                        return
+                                    }
+                                    setUploadedFile(new_file);
+                                }
                             }}
                             className="file-input"
                         />
