@@ -187,7 +187,7 @@ export default function HomePage() {
                       <td>{document.description}</td>
                       <td>
                         <Link
-                          to={`/view-document/${document.id}`}
+                          to={`/document/${document.id}`}
                           state={{document, category}}
                         >
                           <button 

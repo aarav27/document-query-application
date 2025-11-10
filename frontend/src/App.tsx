@@ -16,7 +16,7 @@ export default function App() {
           <Route path="/search" element={<SearchPage/>}/>
           <Route path="/qna" element={<QnAPage/>}/>
           <Route path='/add-document' element={<AddDocumentPage/>}/>
-          <Route path='/view-document/:document_id' element={<ViewDocumentPage/>}/>
+          <Route path='/document/:document_id' element={<ViewDocumentPage/>}/>
         </Routes>
       </div>
     </BrowserRouter>
