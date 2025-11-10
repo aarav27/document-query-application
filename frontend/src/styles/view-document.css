@@ -44,3 +44,18 @@
   height: 100%;
   padding: 50px;
 }
+
+.loading-text {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 18px;
+  color: #777;
+}
+
+.error-text {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 24px;
+  color: #c0392b;
+  font-weight: 600;
+}
