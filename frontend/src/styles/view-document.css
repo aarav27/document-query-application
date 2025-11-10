@@ -1,0 +1,46 @@
+.view-document-page {
+  max-width: 1400px;
+  margin: 32px auto;
+  padding: 32px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+.document-name {
+  font-size: 3rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.document-category {
+  font-size: 1.5rem;
+  font-weight: 500;
+  text-align: center;
+  color: #000000;
+  margin-top: 0px;
+}
+
+.document-description {
+  font-size: 1rem;
+  line-height: 1.5;
+  text-align: center;
+  color: #000000;
+  white-space: pre-wrap;
+  margin-top: 20px;
+}
+
+.document-file {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding-bottom: 20px;
+}
+
+.document-iframe {
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  padding: 50px;
+}

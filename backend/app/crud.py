@@ -32,14 +32,7 @@ async def post_document(document: schemas.DocumentCreate, db: AsyncSession):
         Params={"Bucket": AWS_S3_BUCKET, "Key": s3_document_key},
         ExpiresIn=3600,
     )
-    # upload = s3_client.generate_presigned_post(
-    #     Bucket=AWS_S3_BUCKET,
-    #     Key=s3_document_key,
-    #     Conditions=[
-    #         {"Content-Type": "application/pdf"}
-    #     ],
-    #     ExpiresIn=3600,
-    # )
+
     return {**new_document.__dict__, "upload_url": upload_url}
 
 async def delete_document(document_id: int, db: AsyncSession):

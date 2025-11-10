@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import schemas, crud
 from .database import engine, Base, get_db
+from .s3 import s3_client, AWS_S3_BUCKET
 
 app = FastAPI()
 
@@ -44,11 +45,15 @@ async def create_category(category: schemas.CategoryCreate, db: AsyncSession = D
     return await crud.post_category(category, db)
 
 
-# @app.get("/download-url")
-# async def generate_download_url(document : schemas.Document):
-#     download_url = s3_client.generate_presigned_url(
-#         ClientMethod="get_object",
-#         Params={"Bucket": AWS_S3_BUCKET, "Key": document.s3_document_key},
-#         ExpiresIn=60,
-#     )
-#     return {"download_url": download_url}
+@app.get("/download-url/{document_key}")
+async def generate_download_url(document_key: str, document_name: str):
+    download_url = s3_client.generate_presigned_url(
+        ClientMethod="get_object",
+        Params={
+            "Bucket": AWS_S3_BUCKET, 
+            "Key": document_key,
+            "ResponseContentDisposition": f'inline; filename="{document_name}.pdf"'},
+        ExpiresIn=3600,
+        
+    )
+    return {"download_url": download_url}
