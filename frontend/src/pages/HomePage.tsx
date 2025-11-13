@@ -93,24 +93,32 @@ export default function HomePage() {
     }
   };
 
-  const handleDeleteDocument = async (category: string, document: DocumentType) => {
-    if (confirm("Confirm to delete this document")){
-      setCategories((prevCategories) => ({
-        ...prevCategories,
-        [category]: prevCategories[category].filter((doc : DocumentType) => doc.id !== document.id)
-      }));
+  const handleDeleteCategory = async(category: string) => {
+    if (!confirm("Confirm to delete this category. This will delete all documents under that category")){
+      return;
+    }
+    console.log(category)
+  }
 
-      try {
-        await fetch(`http://127.0.0.1:8000/documents/${document.id}`, {
-          method: "DELETE",
-          headers: {
-              "Content-Type": "application/json",
-          },
-        });
-      } catch (error) {
-          alert("Failed to delete document")
-          throw error
-      }
+  const handleDeleteDocument = async (category: string, document: DocumentType) => {
+    if (!confirm("Confirm to delete this document")){
+      return;
+    }
+    setCategories((prevCategories) => ({
+      ...prevCategories,
+      [category]: prevCategories[category].filter((doc : DocumentType) => doc.id !== document.id)
+    }));
+
+    try {
+      await fetch(`http://127.0.0.1:8000/documents/${document.id}`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+        },
+      });
+    } catch (error) {
+        alert("Failed to delete document")
+        throw error
     }
   }
 
@@ -171,6 +179,7 @@ export default function HomePage() {
             
             {/* Document Table */}
             {expandedCategory === category && (
+            <div>
               <table className='document-table'>
                 <thead>
                   <tr>
@@ -206,6 +215,12 @@ export default function HomePage() {
                   ))}
                 </tbody>
               </table>
+              <div className='delete-category-container'>
+                <button className='delete-category' onClick={() => handleDeleteCategory(category)}>
+                  Delete Category
+                </button>
+              </div>
+            </div>
             )}
           </div>
         ))}

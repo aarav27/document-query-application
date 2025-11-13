@@ -136,6 +136,26 @@ button.table-cell:hover {
   background-color: #a33c3c;
 }
 
+.delete-category-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.delete-category {
+  background-color: #e53e3e;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+
+.delete-category:hover {
+  background-color: #c53030;
+}
+
 .popup-overlay {
   position: fixed;
   top: 0;
