@@ -56,3 +56,11 @@ async def post_category(category: schemas.CategoryCreate, db: AsyncSession):
     await db.commit()
     await db.refresh(new_category)
     return new_category
+
+async def delete_category(category_id: int, db: AsyncSession):
+    category = await db.get(models.Category, category_id)
+    if not category:
+        raise HTTPException(status_code=404, detail="Category not found")
+    await db.delete(category)
+    await db.commit()
+    return {"ok": True}

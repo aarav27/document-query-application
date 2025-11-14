@@ -44,7 +44,12 @@ async def read_categories(db: AsyncSession = Depends(get_db)):
 async def create_category(category: schemas.CategoryCreate, db: AsyncSession = Depends(get_db)):
     return await crud.post_category(category, db)
 
+@app.delete("/categories/{category_id}", response_model=dict)
+async def create_category(category_id: int, db: AsyncSession = Depends(get_db)):
+    return await crud.delete_category(category_id, db)
 
+
+# Download URL
 @app.get("/download-url/{document_key}")
 async def generate_download_url(document_key: str, document_name: str):
     download_url = s3_client.generate_presigned_url(
