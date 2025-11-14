@@ -94,14 +94,14 @@ export default function HomePage() {
   };
 
   const handleDeleteCategory = async(category: string) => {
-    if (!confirm("Confirm to delete this category. This will delete all documents under that category")){
+    if (!confirm(`Confirm to delete ${category}\nNote: This will delete all documents under ${category}`)){
       return;
     }
     console.log(category)
   }
 
   const handleDeleteDocument = async (category: string, document: DocumentType) => {
-    if (!confirm("Confirm to delete this document")){
+    if (!confirm(`Confirm to delete ${document.name} in ${category}`)){
       return;
     }
     setCategories((prevCategories) => ({
