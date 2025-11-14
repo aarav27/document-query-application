@@ -1,3 +1,5 @@
+/*Top Page Dashboard*/
+
 .dashboard-top {
   display: flex;
   justify-content: flex-end; 
@@ -45,26 +47,8 @@
   background-color: #004187;
 }
 
-.table-cell {
-  text-align: center; 
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid #e0e0e0;
-  color: black;
-}
 
-button.table-cell {
-  padding: 0.75rem 2rem;
-  border: none;
-  background-color: #4f46e5;
-  color: white;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-button.table-cell:hover {
-  background-color: #2a238a;
-} 
+/* Document Table - Category */
 
 .category-filter {
   margin: 1rem 0;
@@ -100,9 +84,13 @@ button.table-cell:hover {
   background-color: #c1ebcb;
 }
 
+
+/* Document Table - Documents */
+
 .document-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed; 
 }
 
 .document-table th,
@@ -110,6 +98,27 @@ button.table-cell:hover {
   padding: 0.6rem;
   border-top: 1px solid #ddd;
   text-align: left;
+  vertical-align: middle;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+.document-table th:first-child,
+.document-table td:first-child {
+  width: 30%;
+}
+
+.document-table th:nth-child(2),
+.document-table td:nth-child(2) {
+  width: 40%;
+}
+
+.document-table th:nth-child(3),
+.document-table td:nth-child(3),
+.document-table th:nth-child(4),
+.document-table td:nth-child(4) {
+  width: 15%;
+  text-align: center;
 }
 
 .document-button {
@@ -155,6 +164,9 @@ button.table-cell:hover {
 .delete-category:hover {
   background-color: #c53030;
 }
+
+
+/* Add Category Popup */
 
 .popup-overlay {
   position: fixed;
