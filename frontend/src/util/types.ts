@@ -26,12 +26,10 @@ export interface CategoryType{
   name: string;
 }
 
-export interface CategoryDocumentsType {
-  id: number;
-  category: string;
-  documents: DocumentType[];
+export interface CategoryMapType{
+  [category : string] : number
 }
 
-export interface CategoryDocumentsDictType{
+export interface CategoryDocumentsMapType{
   [category: string] : DocumentType[];
 }

@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
 import '@/styles/home.css'
-import type { CategoryType, DocumentType, CategoryDocumentsType, CategoryDocumentsDictType} from '@/util/types';
+import type { CategoryType, DocumentType, CategoryMapType, CategoryDocumentsMapType} from '@/util/types';
 
 export default function HomePage() {
-  const [categories, setCategories] = useState<CategoryDocumentsDictType>({});
+  const [categoryDocumentMap, setCategoryDocumentMap] = useState<CategoryDocumentsMapType>({});
+  const [categoryMap, setCategoryMap] = useState<CategoryMapType>({})
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState(false);
 
-  const [showAddCategoryPopUp, setshowAddCategoryPopUp] = useState<boolean>(false);
+  const [showAddCategoryPopUp, setShowAddCategoryPopUp] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState<string>("");
 
   useEffect(() => {
@@ -29,26 +30,29 @@ export default function HomePage() {
           throw new Error(`Error Status: ${response.status}`);
         }
         const category_data = await response.json();
-
-        // 3. Perform join on categories and documents
-        const documentMap: Record<number, DocumentType[]> = {};
-        document_data.forEach((doc : DocumentType) => {
-          if(!documentMap[doc.category_id]){
-            documentMap[doc.category_id] = []
-          }
-          documentMap[doc.category_id].push(doc);
-        });
-        const category_documents : CategoryDocumentsType[] = category_data.map((cat : CategoryType) => ({
-          id: cat.id,
-          category: cat.name,
-          documents: documentMap[cat.id]
-        }));
-        const categoryDict: CategoryDocumentsDictType = {};
-        category_documents.forEach((cat : CategoryDocumentsType) => {
-          categoryDict[cat.category] = cat.documents;
-        });
         
-        setCategories(categoryDict);
+        // 3. Create category map
+        const catMapNameToId : CategoryMapType = {};
+        const catMapIdToName : Record<number, string> = {};
+        category_data.forEach((cat : CategoryType) => {
+          catMapNameToId[cat.name] = cat.id
+          catMapIdToName[cat.id] = cat.name
+        })
+        setCategoryMap(catMapNameToId)
+
+        // 4. Create category document map
+        const catDocMap : CategoryDocumentsMapType = {}
+        Object.keys(catMapNameToId).forEach((cat_name : string) => 
+          catDocMap[cat_name] = []
+        )
+        document_data.forEach((doc : DocumentType) => {
+          const cat_name : string = catMapIdToName[doc.category_id]
+          if (!catDocMap[cat_name]) {
+            catDocMap[cat_name] = []
+          }
+          catDocMap[cat_name].push(doc)
+        })
+        setCategoryDocumentMap(catDocMap)
 
       } catch {
         setError(true);
@@ -64,14 +68,17 @@ export default function HomePage() {
   };
 
   const handleAddCategory = async () => {
-    if (categories[newCategoryName]) { 
+    if (newCategoryName === ""){
+      return alert("Enter a category name")
+    }
+    if (categoryDocumentMap[newCategoryName] || categoryMap[newCategoryName]) { 
       return alert("Category already exists");
     }
-    const newCategory = {
-      name: newCategoryName
-    };
 
     try {
+      const newCategory = {
+        name: newCategoryName
+      };
       const add_category_response = await fetch("http://127.0.0.1:8000/categories", {
         method: "POST",
         headers: {
@@ -81,10 +88,14 @@ export default function HomePage() {
       });
 
       if(add_category_response.ok){
-        alert("Added new category")
-        setCategories(prev => ({ ...prev, [newCategoryName]: [] }));
-        setshowAddCategoryPopUp(false);
+        const new_category_data : CategoryType = await add_category_response.json();
+        setCategoryDocumentMap(prev => ({ ...prev, [new_category_data.name]: []}));
+        setCategoryMap(prev => ({ ...prev, [new_category_data.name]: new_category_data.id}))
+
+        setShowAddCategoryPopUp(false);
         setNewCategoryName("");
+
+        alert(`Added Category: ${new_category_data.name}`)
       }
 
     } catch(error) {
@@ -97,33 +108,61 @@ export default function HomePage() {
     if (!confirm(`Confirm to delete ${category}\nNote: This will delete all documents under ${category}`)){
       return;
     }
-    console.log(category)
+
+    try {
+      const category_id = categoryMap[category]
+      const delete_category_response = await fetch(`http://127.0.0.1:8000/categories/${category_id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if(delete_category_response.ok){
+        const new_categoryMap = { ...categoryMap }
+        delete new_categoryMap[category]
+        setCategoryMap(new_categoryMap)
+
+        const new_categoryDocumentMap = { ...categoryDocumentMap }
+        delete new_categoryDocumentMap[category]
+        setCategoryDocumentMap(new_categoryDocumentMap)
+
+        alert(`Deleted Category: ${category}`)
+      }
+
+    } catch (error) {
+      alert("Failed to delete category")
+      throw error
+    }
   }
 
   const handleDeleteDocument = async (category: string, document: DocumentType) => {
     if (!confirm(`Confirm to delete ${document.name} in ${category}`)){
       return;
     }
-    setCategories((prevCategories) => ({
-      ...prevCategories,
-      [category]: prevCategories[category].filter((doc : DocumentType) => doc.id !== document.id)
-    }));
 
     try {
-      await fetch(`http://127.0.0.1:8000/documents/${document.id}`, {
+      const delete_document_response = await fetch(`http://127.0.0.1:8000/documents/${document.id}`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
         },
       });
+
+      if(delete_document_response.ok){
+        setCategoryDocumentMap((prevCategories) => ({
+          ...prevCategories,
+          [category]: prevCategories[category].filter((doc : DocumentType) => doc.id !== document.id)
+        }));
+      }
+
     } catch (error) {
-        alert("Failed to delete document")
-        throw error
+      alert("Failed to delete document")
+      throw error
     }
   }
 
-  const displayedCategories =
-    selectedCategory === 'All' ? Object.keys(categories) : [selectedCategory];
+  const displayedCategories = selectedCategory === 'All' ? Object.keys(categoryDocumentMap) : [selectedCategory];
 
   if (loading) return <div></div>;
   if (error) return <div>Error loading documents</div>;
@@ -138,7 +177,7 @@ export default function HomePage() {
         <div className='dashboard-buttons'>
           <button 
             className='dashboard-button add-category-button'
-            onClick={() => setshowAddCategoryPopUp(true)}
+            onClick={() => setShowAddCategoryPopUp(true)}
           >
             Add Category</button>
           <Link to='/add-document'>
@@ -157,7 +196,7 @@ export default function HomePage() {
           onChange={(e) => setSelectedCategory(e.target.value)}
         >
           <option value="All">All</option>
-          {Object.keys(categories).map((cat) => (
+          {Object.keys(categoryDocumentMap).map((cat) => (
             <option key={cat} value={cat}>
               {cat}
             </option>
@@ -190,7 +229,7 @@ export default function HomePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {categories[category]?.map((document, idx) => (
+                  {categoryDocumentMap[category].map((document, idx) => (
                     <tr key={idx}>
                       <td>{document.name}</td>
                       <td>{document.description}</td>
@@ -216,7 +255,10 @@ export default function HomePage() {
                 </tbody>
               </table>
               <div className='delete-category-container'>
-                <button className='delete-category' onClick={() => handleDeleteCategory(category)}>
+                <button 
+                  className='delete-category' 
+                  onClick={() => handleDeleteCategory(category)}
+                >
                   Delete Category
                 </button>
               </div>
@@ -241,7 +283,12 @@ export default function HomePage() {
 
           <div className="popup-buttons">
             <button className="popup-add-category-button" onClick={handleAddCategory}>Add Category</button>
-            <button className="popup-cancel-button" onClick={() => setshowAddCategoryPopUp(false)}>Cancel</button>
+            <button className="popup-cancel-button" onClick={() => {
+              setShowAddCategoryPopUp(false)
+              setNewCategoryName("");
+            }}>
+              Cancel
+            </button>
           </div>
         </div>
       </div>
