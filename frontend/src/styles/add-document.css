@@ -25,7 +25,12 @@
   border: none;
 }
 
-.cancel-button{
+.back-button{
+  font-size: 18px;
+  border-radius: 20px;
+  background-color: #57b1de;
+}
+.clear-button{
   background-color: #eb5656;
   margin-left: auto
 }

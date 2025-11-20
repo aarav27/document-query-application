@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import type { DocumentType } from "@/util/types"
 import { useEffect, useState } from 'react';
 import "@/styles/view-document.css"
@@ -37,6 +37,11 @@ export default function ViewDocumentPage() {
 
   return (
     <div className="view-document-page">
+      <Link to='/'>
+        <button className="buttons back-button">
+            &larr; Back
+        </button>
+      </Link>
       <h1 className="document-name">{document.name}</h1>
       <h2 className="document-category">{category}</h2> 
       <p className="document-description">{document.description}</p> 

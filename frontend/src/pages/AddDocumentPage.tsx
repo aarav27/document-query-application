@@ -22,13 +22,15 @@ export default function AddDocumentPage(){
                 return category
             });
             setCategories(category_data)
-
-            if (category_data.length > 0){
-                setSelectedCategory(category_data[0].name)
-            }
         }
         fetchCategories();
     }, [])
+
+    const clearForm = () => {
+        setDocumentDescription("")
+        setSelectedCategory("")
+        setUploadedFile(null)
+    }
 
     const uploadDocument = async () => {
         if (!uploadedFile){
@@ -36,7 +38,7 @@ export default function AddDocumentPage(){
             return;
         }
         if (categories.length == 0){
-            alert("No categories to select")
+            alert("No categories to select from")
         }
         if (!selectedCategory){
             alert("Please select category");
@@ -96,6 +98,11 @@ export default function AddDocumentPage(){
 
     return (
         <div className="add-document-page">
+            <Link to='/'>
+                <button className="buttons back-button">
+                   &larr; Back
+                </button>
+            </Link>
             <h2 style={{ textAlign: "center" }} className="add-document-title">Add Document</h2>
             <form onSubmit={async (e) => {
                 e.preventDefault();
@@ -108,7 +115,7 @@ export default function AddDocumentPage(){
                         ) : (
                             <div>
                                 <p className="upload-icon">📄</p>
-                                <p>Click to upload or drag and drop</p>
+                                <p>Click to upload</p>
                                 <p className="upload-text">PDF only</p>
                             </div>
                         )}
@@ -156,17 +163,10 @@ export default function AddDocumentPage(){
                     />
                 </label>
                 <div className='button-container'>
-                    <Link to='/'>
-                        <button 
-                            className="buttons cancel-button" 
-                        >
-                            Cancel
-                        </button>
-                    </Link>
-                    <button 
-                        className="buttons upload-document-button" 
-                        type="submit"
-                    >
+                    <button className="buttons clear-button" type="button" onClick={clearForm}>
+                        Clear
+                    </button>
+                    <button className="buttons upload-document-button" type="submit">
                         Add Document
                     </button>
                 </div>
