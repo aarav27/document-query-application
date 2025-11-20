@@ -30,6 +30,10 @@ async def read_documents(db: AsyncSession = Depends(get_db)):
 async def create_document(document: schemas.DocumentCreate, db: AsyncSession = Depends(get_db)):
     return await crud.post_document(document, db)
 
+@app.put("/documents/{document_id}/extract")
+async def extract_text_document(document_id: int, db: AsyncSession = Depends(get_db)):
+    return await crud.put_document_extract_text(document_id, db)
+
 @app.delete("/documents/{document_id}", response_model=dict)
 async def delete_document(document_id: int, db: AsyncSession = Depends(get_db)):
     return await crud.delete_document(document_id, db)

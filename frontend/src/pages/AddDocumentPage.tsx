@@ -3,11 +3,6 @@ import { Link, useNavigate} from 'react-router-dom';
 import '@/styles/add-document.css'
 import type { CategoryType, DocumentCreateType, DocumentUploadType } from '@/util/types';
 
-// interface CategoryType{
-//   id: number;
-//   name: string;
-// }
-
 export default function AddDocumentPage(){
     const navigate = useNavigate();
     const [categories, setCategories] = useState<CategoryType[]>([])
@@ -80,6 +75,15 @@ export default function AddDocumentPage(){
             if (!upload_document_response.ok){
                 throw new Error(`Error Status: ${upload_document_response.status}`);
             }
+            
+            // 3. Extract text from file after upload
+            const extract_text_response = await fetch(`http://127.0.0.1:8000/documents/${document_data.id}/extract`, {
+                method: "PUT"
+            });
+            if (!extract_text_response.ok){
+                throw new Error(`Error Status: ${extract_text_response.status}`);
+            }
+
             alert("Document Added")
             navigate("/");
 

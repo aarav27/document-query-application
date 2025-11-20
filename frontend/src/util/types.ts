@@ -4,6 +4,7 @@ export interface DocumentType {
   description: string;
   s3_document_key: string;
   category_id: number;
+  extracted_text: string;
 }
 
 export interface DocumentCreateType {
@@ -17,8 +18,8 @@ export interface DocumentUploadType {
   name: string;
   description: string;
   s3_document_key: string;
-  upload_url : string;
   category_id: number;
+  upload_url : string;
 }
 
 export interface CategoryType{

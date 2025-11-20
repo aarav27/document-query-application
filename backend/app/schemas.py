@@ -12,6 +12,7 @@ class Document(DocumentBase):
     id: int
     category_id: int
     s3_document_key: Optional[str] = None
+    extracted_text: Optional[str] = None
 
     class Config:
         orm_mode = True

@@ -3,6 +3,7 @@ from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from . import models, schemas
 from .s3 import s3_client, create_s3_document_key, AWS_S3_BUCKET
+from .tasks import extract_pdf_text
 
 async def get_documents(db: AsyncSession):
     result = await db.execute(select(models.Document))
@@ -34,6 +35,20 @@ async def post_document(document: schemas.DocumentCreate, db: AsyncSession):
     )
 
     return {**new_document.__dict__, "upload_url": upload_url}
+
+async def put_document_extract_text(document_id: int, db: AsyncSession):
+    db_result = await db.execute(select(models.Document).where(models.Document.id == document_id))
+    document = db_result.scalar_one_or_none()
+    if not document or not document.s3_document_key:
+        return {"status": "Document not found"}
+
+    extracted_text = extract_pdf_text(document.s3_document_key)
+    document.extracted_text = extracted_text
+    db.add(document)
+    await db.commit()
+    await db.refresh(document)
+    
+    return {"status": "Success", "extracted_text": extracted_text}
 
 async def delete_document(document_id: int, db: AsyncSession):
     document = await db.get(models.Document, document_id)
