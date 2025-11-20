@@ -10,14 +10,14 @@ class DocumentCreate(DocumentBase):
 
 class Document(DocumentBase):
     id: int
-    category_id: int
+    category_id: Optional[int]
     s3_document_key: Optional[str] = None
     extracted_text: Optional[str] = None
 
     class Config:
         orm_mode = True
 
-class DocumentUpload (DocumentBase):
+class DocumentUpload(DocumentBase):
     id: int
     category_id: int
     upload_url: str

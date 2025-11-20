@@ -47,10 +47,12 @@ export default function HomePage() {
         )
         document_data.forEach((doc : DocumentType) => {
           const cat_name : string = catMapIdToName[doc.category_id]
-          if (!catDocMap[cat_name]) {
-            catDocMap[cat_name] = []
+          if(cat_name){
+            if (!catDocMap[cat_name]) {
+              catDocMap[cat_name] = []
+            }
+            catDocMap[cat_name].push(doc)
           }
-          catDocMap[cat_name].push(doc)
         })
         setCategoryDocumentMap(catDocMap)
 

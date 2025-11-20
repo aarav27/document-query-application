@@ -49,7 +49,7 @@ async def create_category(category: schemas.CategoryCreate, db: AsyncSession = D
     return await crud.post_category(category, db)
 
 @app.delete("/categories/{category_id}", response_model=dict)
-async def create_category(category_id: int, db: AsyncSession = Depends(get_db)):
+async def delete_category(category_id: int, db: AsyncSession = Depends(get_db)):
     return await crud.delete_category(category_id, db)
 
 
