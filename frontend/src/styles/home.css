@@ -7,7 +7,7 @@
   padding-bottom: 3.5rem;
 }
 
-.dashboard-title {
+.page-title {
   position: absolute;
   left: 50%; 
   transform: translateX(-50%);

@@ -1,69 +1,22 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom';
 import '@/styles/home.css'
-import type { CategoryType, DocumentType, CategoryMapType, CategoryDocumentsMapType} from '@/util/types';
+import type { CategoryType, DocumentType } from '@/util/types';
+import { useDocumentsAndCategories }from '@/components/FetchData'
 
 export default function HomePage() {
-  const [categoryDocumentMap, setCategoryDocumentMap] = useState<CategoryDocumentsMapType>({});
-  const [categoryMap, setCategoryMap] = useState<CategoryMapType>({})
+  const { 
+    loading,
+    error,
+    categoryMap,
+    categoryDocumentMap,
+    setCategoryMap,
+    setCategoryDocumentMap 
+  } = useDocumentsAndCategories();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState(false);
-
   const [showAddCategoryPopUp, setShowAddCategoryPopUp] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState<string>("");
-
-  useEffect(() => {
-    const fetchAll = async () => {
-      try {
-        // 1. Fetch all documents
-        const document_response = await fetch("http://127.0.0.1:8000/documents");
-        if (!document_response.ok) {
-          throw new Error(`Error Status: ${document_response.status}`);
-        }
-        const document_data = await document_response.json();
-        
-        // 2. Fetch all categories
-        const response = await fetch("http://127.0.0.1:8000/categories");
-        if (!response.ok) {
-          throw new Error(`Error Status: ${response.status}`);
-        }
-        const category_data = await response.json();
-        
-        // 3. Create category map
-        const catMapNameToId : CategoryMapType = {};
-        const catMapIdToName : Record<number, string> = {};
-        category_data.forEach((cat : CategoryType) => {
-          catMapNameToId[cat.name] = cat.id
-          catMapIdToName[cat.id] = cat.name
-        })
-        setCategoryMap(catMapNameToId)
-
-        // 4. Create category document map
-        const catDocMap : CategoryDocumentsMapType = {}
-        Object.keys(catMapNameToId).forEach((cat_name : string) => 
-          catDocMap[cat_name] = []
-        )
-        document_data.forEach((doc : DocumentType) => {
-          const cat_name : string = catMapIdToName[doc.category_id]
-          if(cat_name){
-            if (!catDocMap[cat_name]) {
-              catDocMap[cat_name] = []
-            }
-            catDocMap[cat_name].push(doc)
-          }
-        })
-        setCategoryDocumentMap(catDocMap)
-
-      } catch {
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAll();
-  }, []);
 
   const toggleCategory = (category: string) => {
     setExpandedCategory(expandedCategory === category ? null : category);
@@ -166,14 +119,14 @@ export default function HomePage() {
 
   const displayedCategories = selectedCategory === 'All' ? Object.keys(categoryDocumentMap) : [selectedCategory];
 
-  if (loading) return <div></div>;
+  if (loading) return <div>LOADING</div>;
   if (error) return <div>Error loading documents</div>;
 
   return (
     <div>
       <div className='dashboard-top'>
         {/* Title */}
-        <h1 className='dashboard-title'>Document Dashboard</h1>
+        <h1 className='page-title'>Document Dashboard</h1>
 
         {/* Buttons container */}
         <div className='dashboard-buttons'>
