@@ -8,17 +8,15 @@ export default function SearchPage(){
         loading,
         error,
         categoryMap,
-        categoryDocumentMap,
+        // categoryDocumentMap,
     } = useDocumentsAndCategories();
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [searchInput, setSearchInput] = useState("");
-
-    const handleSearchInputChange = (e) => {
-        e.preventDefault();
-        setSearchInput(e.target.value);
-    }
+    // const [documentsSearchResult, setDocumentsSearchResult] = useState("");
 
     const handleSearch = () => {
+
+        if (selectedCategory)
         alert("Searched for something");
     }
 
@@ -34,7 +32,7 @@ export default function SearchPage(){
         </div>
 
         <div className="search-controls">
-            {/* Category Filter (left) */}
+            {/* Category Filters*/}
             <div className="category-filter">
                 <select
                     id="category"
@@ -51,19 +49,17 @@ export default function SearchPage(){
                 </select>
             </div>
 
-            {/* Search Bar (right) */}
+            {/* Search Bar*/}
             <div className="search-bar">
                 <input
                     type="search"
                     placeholder='Search Here'
-                    onChange={handleSearchInputChange}
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter") handleSearch();
-                    }}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                     value={searchInput}
                 />
                 <button className="search-button" onClick={handleSearch}>
-                    Search
+                    🔍 Search
                 </button>
             </div>
         </div>
