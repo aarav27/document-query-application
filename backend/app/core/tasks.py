@@ -1,6 +1,6 @@
 import fitz
 # from .celery import celery_client
-from .s3 import s3_client, AWS_S3_BUCKET
+from app.core.s3 import s3_client, AWS_S3_BUCKET
 
 # @celery_client.task
 def extract_pdf_text(key):

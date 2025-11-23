@@ -1,14 +1,8 @@
+
 from sqlalchemy import Column, Integer, String, Text, ForeignKey
 from sqlalchemy.orm import relationship
-from .database import Base
 
-class Category(Base):
-    __tablename__ = "categories"
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, nullable=False)
-    documents = relationship("Document", back_populates="category")
-
+from app.core.database import Base
 
 class Document(Base):
     __tablename__ = "documents"

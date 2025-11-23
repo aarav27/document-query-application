@@ -1,10 +1,8 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from . import schemas, crud
-from .database import engine, Base, get_db
-from .s3 import s3_client, AWS_S3_BUCKET
+from app.core.database import engine, Base
+from app.api.router import api_router
 
 app = FastAPI()
 
@@ -21,48 +19,4 @@ async def startup():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-# Documents
-@app.get("/documents", response_model=list[schemas.Document])
-async def read_documents(db: AsyncSession = Depends(get_db)):
-    return await crud.get_documents(db)
-
-@app.post("/documents", response_model=schemas.DocumentUpload)
-async def create_document(document: schemas.DocumentCreate, db: AsyncSession = Depends(get_db)):
-    return await crud.post_document(document, db)
-
-@app.put("/documents/{document_id}/extract")
-async def extract_text_document(document_id: int, db: AsyncSession = Depends(get_db)):
-    return await crud.put_document_extract_text(document_id, db)
-
-@app.delete("/documents/{document_id}", response_model=dict)
-async def delete_document(document_id: int, db: AsyncSession = Depends(get_db)):
-    return await crud.delete_document(document_id, db)
-
-
-# Categories
-@app.get("/categories", response_model=list[schemas.Category])
-async def read_categories(db: AsyncSession = Depends(get_db)):
-    return await crud.get_categories(db)
-
-@app.post("/categories", response_model=schemas.Category)
-async def create_category(category: schemas.CategoryCreate, db: AsyncSession = Depends(get_db)):
-    return await crud.post_category(category, db)
-
-@app.delete("/categories/{category_id}", response_model=dict)
-async def delete_category(category_id: int, db: AsyncSession = Depends(get_db)):
-    return await crud.delete_category(category_id, db)
-
-
-# Download URL
-@app.get("/download-url/{document_key}")
-async def generate_download_url(document_key: str, document_name: str):
-    download_url = s3_client.generate_presigned_url(
-        ClientMethod="get_object",
-        Params={
-            "Bucket": AWS_S3_BUCKET, 
-            "Key": document_key,
-            "ResponseContentDisposition": f'inline; filename="{document_name}.pdf"'},
-        ExpiresIn=3600,
-        
-    )
-    return {"download_url": download_url}
+app.include_router(api_router)

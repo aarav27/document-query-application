@@ -16,7 +16,7 @@ export default function ViewDocumentPage() {
       try {
         if (document.s3_document_key){
           const download_url_response = await fetch(
-            `http://127.0.0.1:8000/download-url/${encodeURIComponent(document.s3_document_key)}?document_name=${encodeURIComponent(document.name)}`)
+            `http://127.0.0.1:8000/documents/download-url/${encodeURIComponent(document.s3_document_key)}?document_name=${encodeURIComponent(document.name)}`)
           if (!download_url_response.ok){
             throw new Error(`Error Status: ${download_url_response.status}`);
           }

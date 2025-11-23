@@ -1,4 +1,4 @@
-from celery import Celery
+from app.core.celery import Celery
 
 celery_client = Celery(
     "tasks",
