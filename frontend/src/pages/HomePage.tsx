@@ -119,7 +119,7 @@ export default function HomePage() {
 
   const displayedCategories = selectedCategory === 'All' ? Object.keys(categoryDocumentMap) : [selectedCategory];
 
-  if (loading) return <div>LOADING</div>;
+  if (loading) return <div/>;
   if (error) return <div>Error loading documents</div>;
 
   return (
