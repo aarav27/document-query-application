@@ -1,0 +1,17 @@
+
+from sqlalchemy import Column, Integer, String, Text, ForeignKey
+from sqlalchemy.orm import relationship
+
+from app.core.database import Base
+
+class Document(Base):
+    __tablename__ = "documents"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    description = Column(String)
+    s3_document_key = Column(String)
+    category_id = Column(Integer, ForeignKey("categories.id"))
+    extracted_text = Column(Text)
+
+    category = relationship("Category", back_populates="documents")
