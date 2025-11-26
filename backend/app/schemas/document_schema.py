@@ -7,6 +7,7 @@ class DocumentBase(BaseModel):
 
 class DocumentCreate(DocumentBase):
     category_id: int
+    s3_document_key: str
 
 class Document(DocumentBase):
     id: int
@@ -16,8 +17,3 @@ class Document(DocumentBase):
 
     class Config:
         orm_mode = True
-
-class DocumentUpload(DocumentBase):
-    id: int
-    category_id: int
-    upload_url: str

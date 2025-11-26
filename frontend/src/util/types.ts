@@ -10,16 +10,8 @@ export interface DocumentType {
 export interface DocumentCreateType {
   name: string;
   description: string;
-  category_id: number;
-}
-
-export interface DocumentUploadType {
-  id: number;
-  name: string;
-  description: string;
   s3_document_key: string;
   category_id: number;
-  upload_url : string;
 }
 
 export interface CategoryType{

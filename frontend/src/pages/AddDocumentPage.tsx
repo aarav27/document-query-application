@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate} from 'react-router-dom';
 import '@/styles/add-document.css'
-import type { CategoryType, DocumentCreateType, DocumentUploadType } from '@/util/types';
+import type { CategoryType, DocumentCreateType } from '@/util/types';
 
 export default function AddDocumentPage(){
     const navigate = useNavigate();
@@ -51,23 +51,15 @@ export default function AddDocumentPage(){
         }
 
         try {
-            // 1. Add document record to database and generate upload URL
-            const newDocument : DocumentCreateType = {
-                name: uploadedFile.name,
-                description: documentDescription,
-                category_id: categoryObj.id
-            };
-            const add_document_response = await fetch("http://127.0.0.1:8000/documents", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(newDocument),
-            });
+            // 1. Generate an S3 presigned URL for uploading
+            const upload_url_response = await fetch(`http://127.0.0.1:8000/documents/upload-url/${uploadedFile.name}`);
+            if(!upload_url_response.ok){
+                throw new Error(`Error Status: ${upload_url_response.status}`);
+            }
+            const {upload_url, s3_document_key} = await upload_url_response.json();
 
-            // 2. Upload file
-            const document_data : DocumentUploadType = await add_document_response.json()
-            const upload_document_response = await fetch(document_data.upload_url, {
+            // 2. Upload the document in S3 using the presigned URL
+            const upload_document_response = await fetch(upload_url, {
                 method: "PUT",
                 body: uploadedFile,
                 headers: {
@@ -77,15 +69,34 @@ export default function AddDocumentPage(){
             if (!upload_document_response.ok){
                 throw new Error(`Error Status: ${upload_document_response.status}`);
             }
+
+            // 3. Add document record to database and generate upload URL
+            const newDocument : DocumentCreateType = {
+                name: uploadedFile.name,
+                description: documentDescription,
+                category_id: categoryObj.id,
+                s3_document_key: s3_document_key
+            };
+            const add_document_response = await fetch("http://127.0.0.1:8000/documents", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(newDocument),
+            });
+            if (!add_document_response.ok){
+                throw new Error(`Error Status: ${upload_document_response.status}`);
+            }
+            const document_data = await add_document_response.json()
             
-            // 3. Extract text from file after upload
+            // 4. Extract text from file after upload
             const extract_text_response = await fetch(`http://127.0.0.1:8000/documents/${document_data.id}/extract`, {
                 method: "PUT"
             });
             if (!extract_text_response.ok){
                 throw new Error(`Error Status: ${extract_text_response.status}`);
             }
-
+            
             alert("Document Added")
             navigate("/");
 

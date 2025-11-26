@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.s3 import s3_client, AWS_S3_BUCKET
+from app.core.s3 import s3_client, AWS_S3_BUCKET, generate_s3_document_key
 from app.services import document_service
 from app.schemas import document_schema
 
@@ -19,7 +19,7 @@ async def read_documents(db: AsyncSession = Depends(get_db)):
 @document_router.post(
     "/",
     summary="Create new document",
-    response_model=document_schema.DocumentUpload
+    response_model=document_schema.Document
 )
 async def create_document(document: document_schema.DocumentCreate, db: AsyncSession = Depends(get_db)):
     return await document_service.post_document(document, db)
@@ -40,9 +40,29 @@ async def extract_text_document(document_id: int, db: AsyncSession = Depends(get
 async def delete_document(document_id: int, db: AsyncSession = Depends(get_db)):
     return await document_service.delete_document(document_id, db)
 
+
+@document_router.get(
+    "/upload-url/{document_name}",
+    summary="Generate upload presigned URL for document",
+    response_model=dict
+)
+async def generate_upload_url(document_name: str):
+    s3_document_key = generate_s3_document_key(document_name)
+    upload_url = s3_client.generate_presigned_url(
+        ClientMethod="put_object",
+        Params={
+            "Bucket": AWS_S3_BUCKET,
+            "Key": s3_document_key,
+            "ContentType": "application/pdf",
+        },
+        ExpiresIn=3600,
+    )
+    
+    return {"upload_url": upload_url, "s3_document_key": s3_document_key}
+    
 @document_router.get(
     "/download-url/{document_key}",
-    summary="Generate presigned URL for document",
+    summary="Generate download presigned URL for document",
     response_model=dict
 )
 async def generate_download_url(document_key: str, document_name: str):
@@ -51,7 +71,8 @@ async def generate_download_url(document_key: str, document_name: str):
         Params={
             "Bucket": AWS_S3_BUCKET, 
             "Key": document_key,
-            "ResponseContentDisposition": f'inline; filename="{document_name}.pdf"'},
+            "ResponseContentType": "application/pdf",
+            "ResponseContentDisposition": f'inline; filename="{document_name}"'},
         ExpiresIn=3600,
         
     )
