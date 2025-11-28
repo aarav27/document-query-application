@@ -1,61 +1,46 @@
-import {useState} from 'react'
-import { useDocumentsAndCategories } from '@/components/FetchData'
-import type { DocumentType } from '@/util/types';
-import '@/styles/home.css'
-import '@/styles/search.css'
+import { useState } from "react";
+import { Link } from "react-router-dom";
 
-export default function SearchPage(){
-    const { 
-        loading,
-        error,
-        categoryDocumentMap,
-    } = useDocumentsAndCategories();
+import { useDocumentsAndCategories } from "@/components/FetchData";
+import type { DocumentType, CategoryDocumentsMapType } from "@/util/types";
+
+import "@/styles/home.css";
+import "@/styles/search.css";
+
+export default function SearchPage() {
+    const { loading, error, categoryDocumentMap } = useDocumentsAndCategories();
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [searchInput, setSearchInput] = useState("");
-    const [documentsSearchResult, setDocumentsSearchResult] = useState<DocumentType[] | null>(null)
+    const [documentsSearchResult, setDocumentsSearchResult] = useState<CategoryDocumentsMapType | null>(null);
 
     const handleSearch = () => {
-        // 0. Check if text in search input
-        if (searchInput === ""){
-            return;
-        }
-        alert(searchInput)
+        if (searchInput === "") return;
 
-        // 1. Select documents based on selected category
-        let filteredDocuments : DocumentType[] = []
-        if (selectedCategory === "All"){
-            Object.keys(categoryDocumentMap).forEach((category : string) => {
-                filteredDocuments.push(...categoryDocumentMap[category])
-            })
-        }
-        else if(categoryDocumentMap[selectedCategory]){
-            filteredDocuments = categoryDocumentMap[selectedCategory]
-        }
-        else{
-            alert("Invalid category")
-            return;
-        }
+        const searchResult: CategoryDocumentsMapType = {};
+        Object.entries(categoryDocumentMap).forEach(([category, documents]: [string, DocumentType[]]) => {
+            searchResult[category] = documents.filter((document) => 
+                document.extracted_text && document.extracted_text.toLowerCase().includes(searchInput.toLowerCase())
+            );
+        })
+        console.log(searchResult["Legal"])
 
-        // 2. Perform search
-        const search_result : DocumentType[] = filteredDocuments.filter((document : DocumentType) => 
-            document.extracted_text && document.extracted_text.toLowerCase().includes(searchInput.toLowerCase())
-        )
-        setDocumentsSearchResult(search_result);
-        alert("Searched for " + searchInput);
-    }
+        setDocumentsSearchResult(searchResult);
+    };
 
     if (loading) return <div/>;
     if (error) return <div>Error loading documents</div>;
 
-    return (    
+    return (
         <div>
-            <div className='search-top'>
-                {/* Title */}
-                <h1 className='page-title'>Document Search</h1>
+            {/* Page Title */}
+            <div className="search-top">
+                <h1 className="page-title">Document Search</h1>
             </div>
 
+            {/* Search Controls */}
             <div className="search-controls">
-                {/* Category Filters*/}
+
+                {/* Category Filter */}
                 <div className="category-filter">
                     <select
                         id="category"
@@ -72,20 +57,71 @@ export default function SearchPage(){
                     </select>
                 </div>
 
-                {/* Search Bar*/}
+                {/* Search Bar */}
                 <div className="search-bar">
                     <input
                         type="search"
-                        placeholder='Search Here'
+                        placeholder="Search Here"
+                        value={searchInput}
                         onChange={(e) => setSearchInput(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                        value={searchInput}
                     />
+
                     <button className="search-button" onClick={handleSearch}>
-                        Search&nbsp; 🔍 
+                        Search 🔍
                     </button>
                 </div>
             </div>
+
+            {/* Search Results */}
+            <div className="category-sections">
+
+                {/* Nothing searched yet */}
+                {!documentsSearchResult ? (
+                    <></>
+                ) : selectedCategory === "All" ? (
+                    Object.keys(documentsSearchResult).map((category) => (
+                        (documentsSearchResult[category].length == 0) ? (<div></div>) : (
+                            <div key={category} className="category-section">
+                                <div className="category-header">
+                                    <h2>{category}</h2>
+                                </div>
+
+                                {/* Document Table */}
+                                <table className="document-table">
+                                    <thead>
+                                    <tr>
+                                        <th>Document Name</th>
+                                        <th>Description</th>
+                                        <th>View</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                        {documentsSearchResult[category].map((document, idx) => (
+                                            <tr key={idx}>
+                                                <td>{document.name}</td>
+                                                <td>{document.description}</td>
+                                                <td>
+                                                    <Link 
+                                                        to={`/document/${document.id}`}
+                                                        state={{ document, category, routeBack: "/search" }}
+                                                    >
+                                                        <button className="document-button view-button">
+                                                            View
+                                                        </button>
+                                                    </Link>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )
+                    ))
+                ) : (
+                    <div/>
+                )}
+            </div>
         </div>
-    )
+    );
 }

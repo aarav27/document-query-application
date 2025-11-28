@@ -7,6 +7,7 @@ export default function ViewDocumentPage() {
   const { state } = useLocation();
   const document : DocumentType = state.document;
   const category : string = state.category;
+  const routeBack : string = state.routeBack
   const [downloadURL, setDownloadURL] = useState<string | null>(null)
   const [documentLoading, setDocumentLoading] = useState<boolean>(true)
   const [documentError, setDocumentError] = useState<boolean>(false);
@@ -37,7 +38,7 @@ export default function ViewDocumentPage() {
 
   return (
     <div className="view-document-page">
-      <Link to='/'>
+      <Link to={routeBack}>
         <button className="buttons back-button">
             &larr; Back
         </button>
