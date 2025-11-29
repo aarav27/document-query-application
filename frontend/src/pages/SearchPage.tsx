@@ -2,28 +2,52 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import { useDocumentsAndCategories } from "@/components/FetchData";
-import type { DocumentType, CategoryDocumentsMapType } from "@/util/types";
+import type { DocumentType } from "@/util/types";
 
 import "@/styles/home.css";
 import "@/styles/search.css";
+
+type SearchDocumentType = {
+  id: number;
+  name: string;
+  description: string;
+  s3_document_key: string;
+  category: string;
+  category_id: number;
+  extracted_text: string;
+}
 
 export default function SearchPage() {
     const { loading, error, categoryDocumentMap } = useDocumentsAndCategories();
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [searchInput, setSearchInput] = useState("");
-    const [documentsSearchResult, setDocumentsSearchResult] = useState<CategoryDocumentsMapType | null>(null);
+    const [documentsSearchResult, setDocumentsSearchResult] = useState<SearchDocumentType[] | null>(null);
+
+    const hasSearched = documentsSearchResult !== null;
+    const allResultsEmpty = hasSearched && documentsSearchResult.length == 0
 
     const handleSearch = () => {
-        if (searchInput === "") return;
+        if (searchInput === "") {
+            setDocumentsSearchResult(null);
+            return;
+        }
 
-        const searchResult: CategoryDocumentsMapType = {};
+        if (!categoryDocumentMap) {
+            setDocumentsSearchResult(null);
+            alert("No documents to search from!")
+            return;
+        }
+
+        const searchResult: SearchDocumentType[] = [];
         Object.entries(categoryDocumentMap).forEach(([category, documents]: [string, DocumentType[]]) => {
-            searchResult[category] = documents.filter((document) => 
+            const filteredDocuments : DocumentType[] = documents.filter((document : DocumentType) => 
                 document.extracted_text && document.extracted_text.toLowerCase().includes(searchInput.toLowerCase())
             );
+            filteredDocuments.forEach((document : DocumentType) => {
+                const search_document : SearchDocumentType = {...document, category}
+                searchResult.push(search_document)
+            })
         })
-        console.log(searchResult["Legal"])
-
         setDocumentsSearchResult(searchResult);
     };
 
@@ -75,51 +99,51 @@ export default function SearchPage() {
 
             {/* Search Results */}
             <div className="category-sections">
+                
+                {/* 1. Has not searched yet */}
+                {!hasSearched && <></>}
+                
+                {/* 2. No matching results */}
+                {hasSearched && allResultsEmpty && (
+                    <div className="no-results">No results found</div>
+                )}
 
-                {/* Nothing searched yet */}
-                {!documentsSearchResult ? (
-                    <></>
-                ) : selectedCategory === "All" ? (
-                    Object.keys(documentsSearchResult).map((category) => (
-                        (documentsSearchResult[category].length == 0) ? (<div></div>) : (
-                            <div key={category} className="category-section">
-                                <div className="category-header">
-                                    <h2>{category}</h2>
-                                </div>
-
-                                {/* Document Table */}
-                                <table className="document-table">
-                                    <thead>
-                                    <tr>
-                                        <th>Document Name</th>
-                                        <th>Description</th>
-                                        <th>View</th>
+                {/* 3. Matching Results */}
+                {hasSearched && !allResultsEmpty && (
+                    <div className="results-section">
+                        <div className="results-header">Top Results</div>
+                        <table className="document-table">
+                            <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Document Name</th>
+                                <th>Category</th>
+                                <th>Description</th>
+                                <th>View</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {documentsSearchResult.map((document : SearchDocumentType, idx : number) => (
+                                    <tr key={idx}>
+                                        <td>{idx+1}</td>
+                                        <td>{document.name}</td>
+                                        <td>{document.category}</td>
+                                        <td>{document.description}</td>
+                                        <td>
+                                            <Link 
+                                                to={`/document/${document.id}`}
+                                                state={{ document, category: document.category, routeBack: "/search" }}
+                                            >
+                                                <button className="document-button view-button">
+                                                    View
+                                                </button>
+                                            </Link>
+                                        </td>
                                     </tr>
-                                    </thead>
-                                    <tbody>
-                                        {documentsSearchResult[category].map((document, idx) => (
-                                            <tr key={idx}>
-                                                <td>{document.name}</td>
-                                                <td>{document.description}</td>
-                                                <td>
-                                                    <Link 
-                                                        to={`/document/${document.id}`}
-                                                        state={{ document, category, routeBack: "/search" }}
-                                                    >
-                                                        <button className="document-button view-button">
-                                                            View
-                                                        </button>
-                                                    </Link>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        )
-                    ))
-                ) : (
-                    <div/>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
             </div>
         </div>
