@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { useDocumentsAndCategories } from "@/components/FetchData";
@@ -26,6 +26,12 @@ export default function SearchPage() {
     const hasSearched = documentsSearchResult !== null;
     const allResultsEmpty = hasSearched && documentsSearchResult.length == 0
 
+    useEffect(() => {
+        if (searchInput !== "") {
+            handleSearch();
+        }
+    }, [selectedCategory]);
+
     const handleSearch = () => {
         if (searchInput === "") {
             setDocumentsSearchResult(null);
@@ -40,9 +46,12 @@ export default function SearchPage() {
 
         const searchResult: SearchDocumentType[] = [];
         Object.entries(categoryDocumentMap).forEach(([category, documents]: [string, DocumentType[]]) => {
+            if (selectedCategory !== "All" && selectedCategory !== category) return;
+
             const filteredDocuments : DocumentType[] = documents.filter((document : DocumentType) => 
                 document.extracted_text && document.extracted_text.toLowerCase().includes(searchInput.toLowerCase())
             );
+            
             filteredDocuments.forEach((document : DocumentType) => {
                 const search_document : SearchDocumentType = {...document, category}
                 searchResult.push(search_document)
@@ -112,7 +121,7 @@ export default function SearchPage() {
                 {hasSearched && !allResultsEmpty && (
                     <div className="results-section">
                         <div className="results-header">Top Results</div>
-                        <table className="document-table">
+                        <table className="search-document-table">
                             <thead>
                             <tr>
                                 <th>Rank</th>
