@@ -1,4 +1,4 @@
-from http.client import HTTPException
+from fastapi import HTTPException
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -6,9 +6,15 @@ from app.core.tasks import extract_pdf_text
 from app.models import document_model
 from app.schemas import document_schema
 
-async def get_documents(db: AsyncSession):
-    result = await db.execute(select(document_model.Document))
-    return result.scalars().all()
+async def get_documents_all(db: AsyncSession):
+    db_result = await db.execute(select(document_model.Document))
+    return db_result.scalars().all()
+
+async def get_documents(category_id, db: AsyncSession):
+    db_result = await db.execute(
+        select(document_model.Document)
+        .where(document_model.Document.category_id == category_id))
+    return db_result.scalars().all()
 
 async def post_document(document: document_schema.DocumentCreate, db: AsyncSession):
     new_document = document_model.Document(

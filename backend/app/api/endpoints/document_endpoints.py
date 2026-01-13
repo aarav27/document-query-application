@@ -13,8 +13,8 @@ document_router = APIRouter()
     summary="Get all documents",
     response_model=list[document_schema.Document]
 )
-async def read_documents(db: AsyncSession = Depends(get_db)):
-    return await document_service.get_documents(db)
+async def read_documents_all(db: AsyncSession = Depends(get_db)):
+    return await document_service.get_documents_all(db)
 
 @document_router.post(
     "/",
