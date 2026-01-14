@@ -1,7 +1,5 @@
-from app.api.endpoints import document_endpoints
 from fastapi import APIRouter
-
-from app.api.endpoints import category_endpoints
+from app.api.endpoints import document_endpoints, category_endpoints, search_endpoints
 
 api_router = APIRouter(prefix="")
 
@@ -14,4 +12,9 @@ api_router.include_router(
     category_endpoints.category_router,
     prefix="/categories",
     tags=["Categories"],
+)
+api_router.include_router(
+    search_endpoints.search_router,
+    prefix="/search",
+    tags=["Document Search"],
 )
