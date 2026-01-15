@@ -7,21 +7,11 @@ import type { DocumentType } from "@/util/types";
 import "@/styles/home.css";
 import "@/styles/search.css";
 
-type SearchDocumentType = {
-  id: number;
-  name: string;
-  description: string;
-  s3_document_key: string;
-  category: string;
-  category_id: number;
-  extracted_text: string;
-}
-
 export default function SearchPage() {
-    const { loading, error, categoryDocumentMap } = useDocumentsAndCategories();
+    const { loading, error, categoryMap, categoryDocumentMap } = useDocumentsAndCategories();
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [searchInput, setSearchInput] = useState("");
-    const [documentsSearchResult, setDocumentsSearchResult] = useState<SearchDocumentType[] | null>(null);
+    const [documentsSearchResult, setDocumentsSearchResult] = useState<DocumentType[] | null>(null);
 
     const hasSearched = documentsSearchResult !== null;
     const allResultsEmpty = hasSearched && documentsSearchResult.length == 0
@@ -32,7 +22,7 @@ export default function SearchPage() {
         }
     }, [selectedCategory]);
 
-    const handleSearch = () => {
+    const handleSearch = async () => {
         if (searchInput === "") {
             setDocumentsSearchResult(null);
             return;
@@ -43,21 +33,28 @@ export default function SearchPage() {
             alert("No documents to search from!")
             return;
         }
-
-        const searchResult: SearchDocumentType[] = [];
+        
+        // TODO: Fix potential faults with the category name instead of category id
+        const documentsToSearch : DocumentType[] = [];
         Object.entries(categoryDocumentMap).forEach(([category, documents]: [string, DocumentType[]]) => {
             if (selectedCategory !== "All" && selectedCategory !== category) return;
-
-            const filteredDocuments : DocumentType[] = documents.filter((document : DocumentType) => 
-                document.extracted_text && document.extracted_text.toLowerCase().includes(searchInput.toLowerCase())
-            );
-            
-            filteredDocuments.forEach((document : DocumentType) => {
-                const search_document : SearchDocumentType = {...document, category}
-                searchResult.push(search_document)
-            })
+            documentsToSearch.push(...documents)
         })
-        setDocumentsSearchResult(searchResult);
+        
+        const categoryId = selectedCategory === "All" ? null : categoryMap[selectedCategory];
+        const search_response = await fetch("http://127.0.0.1:8000/search", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                query: searchInput,
+                category_id: categoryId
+            })
+        });
+        if (!search_response.ok) throw new Error(`Error Status: ${search_response.status}`);
+        const search_result : DocumentType[] = await search_response.json();
+        setDocumentsSearchResult(search_result);
     };
 
     if (loading) return <div/>;
@@ -132,16 +129,16 @@ export default function SearchPage() {
                             </tr>
                             </thead>
                             <tbody>
-                                {documentsSearchResult.map((document : SearchDocumentType, idx : number) => (
+                                {documentsSearchResult.map((document : DocumentType, idx : number) => (
                                     <tr key={idx}>
                                         <td>{idx+1}</td>
                                         <td>{document.name}</td>
-                                        <td>{document.category}</td>
+                                        <td>{categoryMap[document.category_id]}</td>
                                         <td>{document.description}</td>
                                         <td>
                                             <Link 
                                                 to={`/document/${document.id}`}
-                                                state={{ document, category: document.category, routeBack: "/search" }}
+                                                state={{ document, category: categoryMap[document.category_id], routeBack: "/search" }}
                                             >
                                                 <button className="document-button view-button">
                                                     View
