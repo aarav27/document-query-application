@@ -11,6 +11,7 @@ export default function SearchPage() {
     const { loading, error, categoryMap, categoryDocumentMap } = useDocumentsAndCategories();
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [searchInput, setSearchInput] = useState("");
+    const [isSearching, setIsSearching] = useState(false);
     const [documentsSearchResult, setDocumentsSearchResult] = useState<DocumentType[] | null>(null);
 
     const hasSearched = documentsSearchResult !== null;
@@ -34,27 +35,39 @@ export default function SearchPage() {
             return;
         }
         
-        // TODO: Fix potential faults with the category name instead of category id
-        const documentsToSearch : DocumentType[] = [];
-        Object.entries(categoryDocumentMap).forEach(([category, documents]: [string, DocumentType[]]) => {
-            if (selectedCategory !== "All" && selectedCategory !== category) return;
-            documentsToSearch.push(...documents)
-        })
-        
-        const categoryId = selectedCategory === "All" ? null : categoryMap[selectedCategory];
-        const search_response = await fetch("http://127.0.0.1:8000/search", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                query: searchInput,
-                category_id: categoryId
+        try {
+            setIsSearching(true);
+
+            // TODO: Fix potential faults with the category name instead of category id
+            const documentsToSearch : DocumentType[] = [];
+            Object.entries(categoryDocumentMap).forEach(([category, documents]: [string, DocumentType[]]) => {
+                if (selectedCategory !== "All" && selectedCategory !== category) return;
+                documentsToSearch.push(...documents)
             })
-        });
-        if (!search_response.ok) throw new Error(`Error Status: ${search_response.status}`);
-        const search_result : DocumentType[] = await search_response.json();
-        setDocumentsSearchResult(search_result);
+            
+            const categoryId = selectedCategory === "All" ? null : categoryMap[selectedCategory];
+
+            const search_response = await fetch("http://127.0.0.1:8000/search", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    query: searchInput,
+                    category_id: categoryId
+                })
+            });
+
+            if (!search_response.ok) throw new Error(`Error Status: ${search_response.status}`);
+            const search_result : DocumentType[] = await search_response.json();
+            
+            setDocumentsSearchResult(search_result);
+        } catch (err) {
+            console.error(err);
+            setDocumentsSearchResult([]);
+        } finally {
+            setIsSearching(false);
+        }
     };
 
     if (loading) return <div/>;
@@ -94,10 +107,14 @@ export default function SearchPage() {
                         placeholder="Search Here"
                         value={searchInput}
                         onChange={(e) => setSearchInput(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                        onKeyDown={(e) => e.key === "Enter" && !isSearching && handleSearch()}
+                        disabled={isSearching}
                     />
-
-                    <button className="search-button" onClick={handleSearch}>
+                    <button 
+                        className="search-button"
+                        onClick={handleSearch}
+                        disabled={isSearching}
+                    >
                         Search 🔍
                     </button>
                 </div>
@@ -109,13 +126,20 @@ export default function SearchPage() {
                 {/* 1. Has not searched yet */}
                 {!hasSearched && <></>}
                 
-                {/* 2. No matching results */}
-                {hasSearched && allResultsEmpty && (
+                {/* 2. Loading search */}
+                {hasSearched && isSearching && (
+                    <div className="search-loading">
+                        Searching documents ...
+                    </div>
+                )}
+                
+                {/* 3. No matching results */}
+                {hasSearched && !isSearching && allResultsEmpty && (
                     <div className="no-results">No results found</div>
                 )}
 
-                {/* 3. Matching Results */}
-                {hasSearched && !allResultsEmpty && (
+                {/* 4. Matching Results */}
+                {hasSearched && !isSearching && !allResultsEmpty && (
                     <div className="results-section">
                         <div className="results-header">Top Results</div>
                         <table className="search-document-table">

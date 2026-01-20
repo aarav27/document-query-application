@@ -68,6 +68,16 @@
   background-color: #004187;
 }
 
+.search-loading {
+  margin-top: 30px;
+  padding: 20px;
+  text-align: center;
+  font-size: x-large;
+  font-weight: 500;
+  color: #1879e1;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
 .results-section {
   margin-top: 3rem;
   background-color: #ffffff;
@@ -138,18 +148,13 @@
 
 
 .no-results {
-    margin-top: 40px;
-    padding: 30px;
+    margin-top: 30px;
+    padding: 20px;
     text-align: center;
     font-size: x-large;
     font-weight: 500;
-    color: #171717;
-
-    background: #fdfdfd;
-    border-radius: 12px;
-    border: 1px solid #ddd;
-
-    animation: fadeIn 0.3s ease-in-out;
+    color: #eb5656;
+    animation: fadeIn 0.2s ease-in-out;
 }
 
 @keyframes fadeIn {
