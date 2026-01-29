@@ -1,5 +1,6 @@
-from sentence_transformers import SentenceTransformer
 import numpy as np
+from sentence_transformers import SentenceTransformer
+from app.rag.vector_db import vectordb
 
 def semantic_search(query, documents, top_k=5, similarity_threshold=0.2):
 
@@ -16,3 +17,14 @@ def semantic_search(query, documents, top_k=5, similarity_threshold=0.2):
         if similarities[index] >= similarity_threshold:
             search_results.append(documents[index])
     return search_results
+
+def semantic_search_vb(query):
+    retriever = vectordb.as_retriever(
+        search_type="mmr",
+        search_kwargs={
+            "k": 5,
+            "fetch_k": 20
+        }
+    )
+    docs = retriever.invoke(query)
+    return docs

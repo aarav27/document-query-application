@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.tasks import extract_pdf_text
+from backend.app.rag.tasks import extract_pdf_text
 from app.models import document_model
 from app.schemas import document_schema
 
