@@ -87,15 +87,8 @@ export default function AddDocumentPage(){
             if (!add_document_response.ok){
                 throw new Error(`Error Status: ${upload_document_response.status}`);
             }
-            const document_data = await add_document_response.json()
             
-            // 4. Extract text from file after upload
-            const extract_text_response = await fetch(`http://127.0.0.1:8000/documents/${document_data.id}/extract`, {
-                method: "PUT"
-            });
-            if (!extract_text_response.ok){
-                throw new Error(`Error Status: ${extract_text_response.status}`);
-            }
+            // 4. TODO: Extract text from file after upload
             
             alert("Document Added")
             navigate("/");

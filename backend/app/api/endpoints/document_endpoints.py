@@ -24,14 +24,6 @@ async def read_documents_all(db: AsyncSession = Depends(get_db)):
 async def create_document(document: document_schema.DocumentCreate, db: AsyncSession = Depends(get_db)):
     return await document_service.post_document(document, db)
 
-@document_router.put(
-    "/{document_id}/extract",
-    summary="Update extracted_text in document",
-    response_model=dict
-)
-async def extract_text_document(document_id: int, db: AsyncSession = Depends(get_db)):
-    return await document_service.put_document_extract_text(document_id, db)
-
 @document_router.delete(
     "/{document_id}",
     summary="Delete document",

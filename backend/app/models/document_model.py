@@ -12,6 +12,4 @@ class Document(Base):
     description = Column(String)
     s3_document_key = Column(String)
     category_id = Column(Integer, ForeignKey("categories.id"))
-    extracted_text = Column(Text)
-
     category = relationship("Category", back_populates="documents")
