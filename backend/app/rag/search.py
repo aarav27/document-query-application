@@ -1,30 +1,21 @@
-import numpy as np
-from sentence_transformers import SentenceTransformer
-from app.rag.vector_db import vectordb
+from app.rag.vectordb import vectordb
 
-def semantic_search(query, documents, top_k=5, similarity_threshold=0.2):
-
-    model = SentenceTransformer('all-MiniLM-L6-v2')
-    documents_text = [doc.extracted_text for doc in documents]
-    document_embeddings = model.encode(documents_text)
-
-    query_embedding = model.encode([query])
-    similarities = np.dot(query_embedding, document_embeddings.T).flatten()
-    top_indices = similarities.argsort()[-top_k:][::-1]
-
-    search_results = []
-    for index in top_indices:
-        if similarities[index] >= similarity_threshold:
-            search_results.append(documents[index])
-    return search_results
-
-def semantic_search_vb(query):
+def semantic_search(query, category_ids: list[int] | None = None):
+    search_kwargs={
+        "k": 5,
+        "fetch_k": 20
+    }
+    if category_ids is not None:
+        search_kwargs["filter"] = {
+            "category_id": {"$in": category_ids}
+        }
     retriever = vectordb.as_retriever(
         search_type="mmr",
-        search_kwargs={
-            "k": 5,
-            "fetch_k": 20
-        }
+        search_kwargs=search_kwargs,
     )
-    docs = retriever.invoke(query)
-    return docs
+    vectordb_docs = retriever.invoke(query)
+    document_ids = [
+        doc.metadata["document_id"]
+        for doc in vectordb_docs
+    ]
+    return document_ids

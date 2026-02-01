@@ -54,7 +54,7 @@ export default function SearchPage() {
                 },
                 body: JSON.stringify({
                     query: searchInput,
-                    category_id: categoryId
+                    category_id: [categoryId]
                 })
             });
 
