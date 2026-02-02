@@ -23,6 +23,7 @@ async def read_documents_all(db: AsyncSession = Depends(get_db)):
     response_model=document_schema.Document
 )
 async def create_document(document: document_schema.DocumentCreate, db: AsyncSession = Depends(get_db)):
+    # TODO: Add Transactional Outboxing
     new_document = await document_service.post_document(document, db)
     document_pipeline.ingest_document_vectordb(new_document)
     return new_document
@@ -33,8 +34,10 @@ async def create_document(document: document_schema.DocumentCreate, db: AsyncSes
     response_model=dict
 )
 async def delete_document(document_id: int, db: AsyncSession = Depends(get_db)):
+    # TODO: Add Transactional Outboxing
     delete_message = await document_service.delete_document(document_id, db)
     document_pipeline.delete_document_vectordb(document_id)
+    return delete_message
 
 @document_router.get(
     "/upload-url/{document_name}",

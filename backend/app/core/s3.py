@@ -19,6 +19,7 @@ session = boto3.Session(
 s3_client = session.client("s3", config=Config(signature_version="s3v4"))
 
 def generate_s3_document_key(document_name):
-    datetime_string = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
-    modified_document_name = document_name.replace(" ", "_")
-    return f"{datetime_string}_{modified_document_name}"
+    # TODO: fix duplicates with same document name used
+    # datetime_string = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+    # modified_document_name = document_name.replace(" ", "_")
+    return document_name
