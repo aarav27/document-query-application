@@ -1,4 +1,4 @@
-from app.rag.vectordb import vectordb
+from app.rag.document_pipeline import vectordb
 
 def semantic_search(query, category_ids: list[int] | None = None):
     search_kwargs={

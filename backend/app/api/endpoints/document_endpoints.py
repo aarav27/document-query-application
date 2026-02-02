@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.s3 import s3_client, AWS_S3_BUCKET, generate_s3_document_key
-from app.rag import vectordb
+from app.rag import document_pipeline
 from app.services import document_service
 from app.schemas import document_schema
 
@@ -24,7 +24,7 @@ async def read_documents_all(db: AsyncSession = Depends(get_db)):
 )
 async def create_document(document: document_schema.DocumentCreate, db: AsyncSession = Depends(get_db)):
     new_document = await document_service.post_document(document, db)
-    vectordb.ingest_document_vectordb(new_document)
+    document_pipeline.ingest_document_vectordb(new_document)
     return new_document
 
 @document_router.delete(
@@ -34,7 +34,7 @@ async def create_document(document: document_schema.DocumentCreate, db: AsyncSes
 )
 async def delete_document(document_id: int, db: AsyncSession = Depends(get_db)):
     delete_message = await document_service.delete_document(document_id, db)
-    vectordb.delete_document_vectordb(document_id)
+    document_pipeline.delete_document_vectordb(document_id)
 
 @document_router.get(
     "/upload-url/{document_name}",
