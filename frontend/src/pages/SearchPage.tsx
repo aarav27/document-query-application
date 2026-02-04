@@ -60,8 +60,8 @@ export default function SearchPage() {
 
             if (!search_response.ok) throw new Error(`Error Status: ${search_response.status}`);
             const search_result : DocumentType[] = await search_response.json();
-            
             setDocumentsSearchResult(search_result);
+
         } catch (err) {
             console.error(err);
             setDocumentsSearchResult([]);

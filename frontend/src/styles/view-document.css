@@ -1,43 +1,69 @@
 .view-document-page {
   max-width: 1400px;
-  margin: 32px auto;
-  padding: 32px;
+  margin: 2rem auto;
+  padding: 2.5rem;
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: 16px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
-.back-button{
+.back-button {
   color: white;
-  padding: 1rem 2rem;
-  font-size: 18px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  border-radius: 20px;
+  border-radius: 8px;
   border: none;
-  background-color: #57b1de;
+  background: linear-gradient(135deg, #57b1de 0%, #4a9fd4 100%);
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(87, 177, 222, 0.2);
+  margin-bottom: 2rem;
+}
+
+.back-button:hover {
+  background: linear-gradient(135deg, #4a9fd4 0%, #3d8bc0 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(87, 177, 222, 0.3);
 }
 
 .document-name {
   font-size: 2.5rem;
   font-weight: 700;
   text-align: center;
+  color: #1a3a52;
+  margin: 1.5rem 0 0.75rem 0;
 }
 
 .document-category {
-  font-size: 1.75rem;
-  font-weight: 500;
+  font-size: 1.3rem;
+  font-weight: 600;
   text-align: center;
-  color: #000000;
-  margin-top: 0px;
+  color: #1879e1;
+  margin: 0.5rem 0;
+  padding: 0.5rem 1.5rem;
+  background: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 100%);
+  border-radius: 50px;
+  display: inline-block;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  text-align: center;
 }
 
 .document-description {
-  font-size: 1.25rem;
-  line-height: 1.5;
+  font-size: 1.1rem;
+  line-height: 1.7;
   text-align: center;
-  color: #000000;
+  color: #475569;
   white-space: pre-wrap;
-  margin-top: 20px;
+  margin: 1.5rem auto 2rem auto;
+  max-width: 900px;
+  padding: 1.25rem 2rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 12px;
+  border-left: 4px solid #1879e1;
 }
 
 .document-file {
@@ -45,27 +71,39 @@
   height: 100vh;
   display: flex;
   justify-content: center;
-  padding-bottom: 20px;
+  padding-bottom: 2rem;
+  margin-top: 1.5rem;
 }
 
 .document-iframe {
   text-align: center;
   width: 100%;
   height: 100%;
-  padding: 50px;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  background: #ffffff;
 }
 
 .loading-text {
   text-align: center;
-  margin-top: 40px;
-  font-size: 18px;
-  color: #777;
+  margin-top: 4rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #64748b;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 12px;
 }
 
 .error-text {
   text-align: center;
-  margin-top: 40px;
-  font-size: 24px;
-  color: #c0392b;
-  font-weight: 600;
+  margin-top: 4rem;
+  font-size: 1.4rem;
+  color: #dc2626;
+  font-weight: 700;
+  padding: 2.5rem;
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  border-radius: 12px;
+  border: 2px solid #fca5a5;
 }
