@@ -20,11 +20,11 @@
 
 .dashboard-buttons {
   display: flex;
-  gap: 0.75rem;
+  gap: 1.5rem;
 }
 
 .dashboard-button {
-  padding: 0.75rem 1.5rem;
+  padding: 1rem 1.5rem;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
@@ -33,7 +33,7 @@
   border: none;
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  width: 150px;
+  width: 175px;
 }
 
 .add-category-button {
