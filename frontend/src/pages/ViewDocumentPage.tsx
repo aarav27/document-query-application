@@ -45,7 +45,8 @@ export default function ViewDocumentPage() {
       </Link>
       <h1 className="document-name">{document.name}</h1>
       <h2 className="document-category">{category}</h2> 
-      <p className="document-description">{document.description}</p> 
+      <p className="document-description">
+        {document.description ? (document.description) : (<div>No description</div>)}</p>
       <div className="document-file">
         {documentLoading ? (
           <></>
