@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate} from 'react-router-dom';
 import '@/styles/add-document.css'
 import type { CategoryType, DocumentCreateType } from '@/util/types';
+import { useLoading } from '@/context/useLoading';
 
 export default function AddDocumentPage(){
     const navigate = useNavigate();
     const [categories, setCategories] = useState<CategoryType[]>([])
+    const { showLoader, hideLoader } = useLoading();
+
 
     const [documentDescription, setDocumentDescription] = useState<string>("");
     const [selectedCategory, setSelectedCategory] = useState<string>("");
@@ -51,6 +54,8 @@ export default function AddDocumentPage(){
         }
 
         try {
+            showLoader();
+            
             // 1. Generate an S3 presigned URL for uploading
             const upload_url_response = await fetch(`http://127.0.0.1:8000/documents/upload-url/${uploadedFile.name}`);
             if(!upload_url_response.ok){
@@ -89,13 +94,13 @@ export default function AddDocumentPage(){
             }
             
             // 4. TODO: Extract text from file after upload
-            
-            alert("Document Added")
             navigate("/");
 
         } catch (error) {
             alert('Failed to upload document');
             throw error;
+        } finally{
+            hideLoader();
         }
 
     }
