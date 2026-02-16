@@ -1,4 +1,8 @@
 from app.rag.document_pipeline import vectordb
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def semantic_search(query, category_ids: list[int] | None = None):
     search_kwargs={
@@ -14,8 +18,10 @@ def semantic_search(query, category_ids: list[int] | None = None):
         search_kwargs=search_kwargs,
     )
     vectordb_docs = retriever.invoke(query)
-    document_ids = [
-        doc.metadata["document_id"]
-        for doc in vectordb_docs
-    ]
-    return document_ids
+
+    document_ids = set()
+    for doc in vectordb_docs:
+        doc_id = doc.metadata["document_id"]
+        if doc.metadata["document_id"] not in document_ids:
+            document_ids.add(doc_id)
+    return list(document_ids)

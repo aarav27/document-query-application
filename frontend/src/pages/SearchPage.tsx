@@ -7,6 +7,11 @@ import type { DocumentType } from "@/util/types";
 import "@/styles/home.css";
 import "@/styles/search.css";
 
+interface SearchRequest {
+    query: string;
+    category_ids?: number[];
+}
+
 export default function SearchPage() {
     const { loading, error, categoryMap, categoryDocumentMap } = useDocumentsAndCategories();
     const [selectedCategory, setSelectedCategory] = useState("All");
@@ -16,6 +21,9 @@ export default function SearchPage() {
 
     const hasSearched = documentsSearchResult !== null;
     const allResultsEmpty = hasSearched && documentsSearchResult.length == 0
+    const categoryIdNameMap = Object.fromEntries(
+        Object.entries(categoryMap).map(([categoryName, categoryID]) => [categoryID, categoryName])
+    )
 
     useEffect(() => {
         if (searchInput !== "") {
@@ -47,15 +55,20 @@ export default function SearchPage() {
             
             const categoryId = selectedCategory === "All" ? null : categoryMap[selectedCategory];
 
+            const search_request: SearchRequest = {
+                query: searchInput,
+                category_ids: undefined
+            };
+            if (categoryId !== null) {
+                search_request.category_ids = [categoryId];
+            }
+
             const search_response = await fetch("http://127.0.0.1:8000/search", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({
-                    query: searchInput,
-                    category_id: [categoryId]
-                })
+                body: JSON.stringify(search_request)
             });
 
             if (!search_response.ok) throw new Error(`Error Status: ${search_response.status}`);
@@ -157,12 +170,12 @@ export default function SearchPage() {
                                     <tr key={idx}>
                                         <td>{idx+1}</td>
                                         <td>{document.name}</td>
-                                        <td>{categoryMap[document.category_id]}</td>
+                                        <td>{categoryIdNameMap[document.category_id]}</td>
                                         <td>{document.description}</td>
                                         <td>
                                             <Link 
                                                 to={`/document/${document.id}`}
-                                                state={{ document, category: categoryMap[document.category_id], routeBack: "/search" }}
+                                                state={{ document, category: categoryIdNameMap[document.category_id], routeBack: "/search" }}
                                             >
                                                 <button className="document-button view-button">
                                                     View
