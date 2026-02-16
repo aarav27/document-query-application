@@ -3,7 +3,12 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 import pymupdf4llm
 from app.core.s3 import s3_client, AWS_S3_BUCKET
 from app.models.document_model import Document as DocumentModel
-from app.rag.vectordb import vectordb
+from app.rag.vector_stores import chroma_db
+
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=800,
+    chunk_overlap=150
+)
 
 # @celery_client.task
 def ingest_document_vectordb(new_document: DocumentModel):
@@ -17,14 +22,10 @@ def ingest_document_vectordb(new_document: DocumentModel):
     markdown_text = pymupdf4llm.to_markdown(pdf_doc)
 
     # 3. Create chunks
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=800,
-        chunk_overlap=150
-    )
     chunks = splitter.split_text(markdown_text)
 
     # 4. Add chunks to vector DB
-    vectordb.add_texts(
+    chroma_db.add_texts(
         texts=chunks,
         metadatas=[
             {
@@ -38,12 +39,12 @@ def ingest_document_vectordb(new_document: DocumentModel):
             for i in range(len(chunks))
         ]
     )
-    vectordb.persist()
+    chroma_db.persist()
 
 def delete_document_vectordb(document_id: int):
-    vectordb.delete(
+    chroma_db.delete(
         where={
             "document_id": document_id
         }
     )
-    vectordb.persist()
+    chroma_db.persist()
