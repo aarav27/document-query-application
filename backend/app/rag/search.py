@@ -1,10 +1,7 @@
-from app.rag.document_pipeline import vectordb
-import logging
+from typing import List, Optional
+from app.rag.vector_stores import chroma_db
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-def semantic_search(query, category_ids: list[int] | None = None):
+def semantic_search(query, category_ids: Optional[List[int]] = None,):
     search_kwargs={
         "k": 5,
         "fetch_k": 20
@@ -13,7 +10,7 @@ def semantic_search(query, category_ids: list[int] | None = None):
         search_kwargs["filter"] = {
             "category_id": {"$in": category_ids}
         }
-    retriever = vectordb.as_retriever(
+    retriever = chroma_db.as_retriever(
         search_type="mmr",
         search_kwargs=search_kwargs,
     )

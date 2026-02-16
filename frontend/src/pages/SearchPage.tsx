@@ -2,15 +2,11 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { useDocumentsAndCategories } from "@/components/FetchData";
-import type { DocumentType } from "@/util/types";
+import type { DocumentType, SearchRequest } from "@/util/types";
 
 import "@/styles/home.css";
 import "@/styles/search.css";
 
-interface SearchRequest {
-    query: string;
-    category_ids?: number[];
-}
 
 export default function SearchPage() {
     const { loading, error, categoryMap, categoryDocumentMap } = useDocumentsAndCategories();

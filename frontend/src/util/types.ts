@@ -25,3 +25,8 @@ export interface CategoryMapType{
 export interface CategoryDocumentsMapType{
   [category: string] : DocumentType[];
 }
+
+export interface SearchRequest {
+    query: string;
+    category_ids?: number[];
+}
