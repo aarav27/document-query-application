@@ -2,9 +2,9 @@ import logging
 from typing import List, Optional
 
 from app.rag.document_pipeline import chroma_db
-from app.rag.models import get_phi_llm
+from app.rag.models import get_flan_llm
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def qna_pipeline(query: str, category_ids: list[int] | None = None):
     processed_query = process_query(query)
@@ -37,16 +37,25 @@ def augmentation(documents):
         return ""
 
     context_sections = []
-    for i, doc in enumerate(documents):
+    seen_chunks = set()
+    source_index = 1
+    for doc in documents:
         content = doc.page_content if hasattr(doc, "page_content") else str(doc)
         metadata = getattr(doc, "metadata", {})
+
+        seen_chunks = set()
+        chunk_id = metadata.get("chunk_id")
+        document_id = metadata.get("document_id")
+        if (document_id, chunk_id) in seen_chunks:
+            continue
+        seen_chunks.add((document_id, chunk_id))
 
         document_name = metadata.get("document_name", "Unknown")
         description = metadata.get("description", "")
         chunk_id = metadata.get("chunk_id", "Unknown")
 
         section = f"""
-            [Source {i+1}]
+            [Source {source_index+1}]
             Document Name: {document_name}
             Chunk ID: {chunk_id}
             Description: {description}
@@ -56,6 +65,7 @@ def augmentation(documents):
             """
 
         context_sections.append(section)
+        source_index += 1
 
     full_context = "\n\n---\n\n".join(context_sections)
     return full_context
@@ -65,32 +75,6 @@ def generation(query, context):
     llm_prompt = f"""
         You are a helpful assistant that answers **only from retrieved knowledge**.
         Retrieved information is the **only source of truth**.
-
-        ## Core Rules
-        - **Never guess, infer, or rely on prior knowledge.**
-        - **Never fill gaps** with reasoning or external knowledge.
-        - Make **no logical leaps** — even if a connection seems obvious.
-        - Treat each retrieved context as **independent**; combine only if they reference the same entity by name.
-        - Treat entities as related **only if the relationship is explicitly stated**.
-        - **Do not infer, assume, or deduce** compatibility, membership, or relationships between entities or components.
-        - Some document chunks given may be more relevant than others to answer the user's question/query
-
-        ## Answering & Formatting
-        - Provide concise and factual answers **without speculation or synthesis**.
-        - Avoid boilerplate introductions and justifications.
-        - **If the context does not explicitly answer the question, state that the information is unavailable.**
-        - Do not include references, footnotes or citations unless explicitly requested.
-        - Use Markdown formatting to improve readability.
-        - Use MathJax for mathematical or scientific notation: $...$ for inline, $$...$$ for block; avoid other delimiters.
-
-        ## Process
-        1. Retrieve context before answering; use short, focused queries.
-        2. For multi-part questions, handle each part separately while applying all rules.
-        3. If the user's question conflicts with retrieved data, trust the data and note the discrepancy.
-        4. If sources conflict, do not merge or reinterpret — report the discrepancy.
-        5. If coverage is incomplete or unclear, explicitly state that the information is missing.
-
-        ## Final Reinforcement
         Always prefer **accuracy over completeness**.
         If uncertain, clearly state that the information is missing.
         
@@ -100,8 +84,11 @@ def generation(query, context):
         Context/Knowledge Base: {context}
     """
 
-    llm_pipeline = get_phi_llm()
-    response = llm_pipeline(llm_prompt)
+    logging.info(llm_prompt)
+    llm_pipeline = get_flan_llm()
+    output = llm_pipeline(llm_prompt)
+    response = output[0]['generated_text']
+    logging.info(response)
     return response
 
 

@@ -13,10 +13,13 @@ rag_router = APIRouter()
 async def rag_endpoint(search_request : search_schema.SearchRequest):
     response, documents, scores = qna_pipeline(search_request.query, search_request.category_ids)
     sources = []
+    document_id_set = set()
     for doc, score in zip(documents, scores):
         metadata = getattr(doc, "metadata", {})
-        document_name = metadata.get("document_name", "")
         document_id = metadata.get("document_id", "")
+        if document_id in document_id_set:
+            continue
+        document_name = metadata.get("document_name", "")
         sources.append({
             "document_name": document_name,
             "document_id": document_id,
