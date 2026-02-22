@@ -24,7 +24,6 @@ def retrieval(query: str, category_ids: Optional[List[int]] = None, k: int = 3):
     documents, scores = zip(*results)
     return documents, scores
 
-# TODO: Add category name to metadata
 def augmentation(documents):
     if not documents:
         return ""
@@ -38,13 +37,15 @@ def augmentation(documents):
         chunk_id = metadata.get("chunk_id")
         document_name = metadata.get("document_name", "Unknown")
         description = metadata.get("description", "")
+        category_name = metadata.get("category_name", "Unknown")
         chunk_id = metadata.get("chunk_id", "Unknown")
 
         section = f"""
             [Source {source_index}]
+            Category Name: {category_name}
             Document Name: {document_name}
-            Chunk ID: {chunk_id}
-            Description: {description}
+            Document Description: {description}
+            Document Chunk Number: {chunk_id}
             Content Chunk:
             {content}
             """

@@ -8,7 +8,7 @@ class DocumentBase(BaseModel):
     s3_document_key: str
 
 class DocumentCreate(DocumentBase):
-    pass
+    category_name: str
 
 class Document(DocumentBase):
     id: int

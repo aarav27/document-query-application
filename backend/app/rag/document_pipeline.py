@@ -11,7 +11,7 @@ splitter = RecursiveCharacterTextSplitter(
 )
 
 # @celery_client.task
-def ingest_document_vectordb(new_document: document_model.Document):
+def ingest_document_vectordb(new_document: document_model.Document, category_name: str):
 
     # 1. Download PDF from S3
     file = s3_client.get_object(Bucket=AWS_S3_BUCKET, Key=new_document.s3_document_key)
@@ -32,8 +32,7 @@ def ingest_document_vectordb(new_document: document_model.Document):
                 "document_id": new_document.id,
                 "document_name": new_document.name,
                 "description": new_document.description,
-                "category_name": new_document.category,
-                "s3_document_key": new_document.s3_document_key,
+                "category_name": category_name,
                 "chunk_id": i+1
             }
             for i in range(len(chunks))

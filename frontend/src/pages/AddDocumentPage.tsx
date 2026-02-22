@@ -80,7 +80,8 @@ export default function AddDocumentPage(){
                 name: uploadedFile.name,
                 description: documentDescription,
                 category_id: categoryObj.id,
-                s3_document_key: s3_document_key
+                category_name: categoryObj.name,
+                s3_document_key: s3_document_key,
             };
             const add_document_response = await fetch("http://127.0.0.1:8000/documents", {
                 method: "POST",
@@ -93,7 +94,6 @@ export default function AddDocumentPage(){
                 throw new Error(`Error Status: ${upload_document_response.status}`);
             }
             
-            // 4. TODO: Extract text from file after upload
             navigate("/");
 
         } catch (error) {

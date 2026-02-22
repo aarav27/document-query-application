@@ -11,6 +11,7 @@ export interface DocumentCreateType {
   description: string;
   s3_document_key: string;
   category_id: number;
+  category_name: string;
 }
 
 export interface CategoryType{

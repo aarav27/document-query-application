@@ -42,7 +42,6 @@ export default function SearchPage() {
         try {
             setIsSearching(true);
 
-            // TODO: Fix potential faults with the category name instead of category id
             const documentsToSearch : DocumentType[] = [];
             Object.entries(categoryDocumentMap).forEach(([category, documents]: [string, DocumentType[]]) => {
                 if (selectedCategory !== "All" && selectedCategory !== category) return;
