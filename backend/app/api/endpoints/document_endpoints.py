@@ -17,6 +17,14 @@ document_router = APIRouter()
 async def read_documents_all(db: AsyncSession = Depends(get_db)):
     return await document_service.get_documents_all(db)
 
+@document_router.get(
+    "/{document_id}",
+    summary="Get document by ID",
+    response_model=document_schema.Document
+)
+async def read_document_by_id(document_id: int, db: AsyncSession = Depends(get_db)):
+    return await document_service.get_document_by_id(document_id, db)
+
 @document_router.post(
     "/",
     summary="Create new document",

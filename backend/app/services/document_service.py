@@ -9,6 +9,13 @@ async def get_documents_all(db: AsyncSession):
     db_result = await db.execute(select(document_model.Document))
     return db_result.scalars().all()
 
+async def get_document_by_id(id: list[int], db: AsyncSession):
+    db_result = await db.execute(
+        select(document_model.Document)
+        .where(document_model.Document.id == id)
+    )
+    return db_result.scalar_one_or_none()
+
 async def get_documents_by_ids(ids: list[int], db: AsyncSession):
     db_result = await db.execute(
         select(document_model.Document)

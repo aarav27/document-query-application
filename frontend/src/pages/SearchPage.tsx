@@ -170,7 +170,8 @@ export default function SearchPage() {
                                         <td>
                                             <Link 
                                                 to={`/document/${document.id}`}
-                                                state={{ document, category: categoryIdNameMap[document.category_id], routeBack: "/search" }}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
                                             >
                                                 <button className="document-button view-button">
                                                     View

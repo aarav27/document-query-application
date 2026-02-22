@@ -191,7 +191,8 @@ export default function HomePage() {
                       <td>
                         <Link
                           to={`/document/${document.id}`}
-                          state={{document, category, routeBack: "/"}}
+                          target="_blank"
+                          rel="noopener noreferrer"
                         >
                           <button 
                             className="document-button view-button"
