@@ -11,19 +11,5 @@ rag_router = APIRouter()
     response_model=dict
 )
 async def rag_endpoint(search_request : search_schema.SearchRequest):
-    response, documents, scores = qna_pipeline(search_request.query, search_request.category_ids)
-    sources = []
-    document_id_set = set()
-    # TODO: fix scoring to take max score of a document ID for whole document, later we will use document and page
-    for doc, score in zip(documents, scores):
-        metadata = getattr(doc, "metadata", {})
-        document_id = metadata.get("document_id", "")
-        if document_id not in document_id_set:
-            document_name = metadata.get("document_name", "")
-            sources.append({
-                "document_name": document_name,
-                "document_id": document_id,
-                "score": score
-            })
-            document_id_set.add(document_id)
+    response, sources = qna_pipeline(search_request.query, search_request.category_ids)
     return {"response": response, "sources": sources}

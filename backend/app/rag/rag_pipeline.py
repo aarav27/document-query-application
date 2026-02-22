@@ -9,20 +9,48 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 def qna_pipeline(query: str, category_ids: list[int] | None = None):
     processed_query = process_query(query)
     documents, scores = retrieval(processed_query, category_ids)
+    sources = create_sources(documents, scores)
+    if not documents:
+        return "The provided sources do not contain any information about this subject.", sources
     context = augmentation(documents)
     response = generation(processed_query, context)
-    return response, documents, scores
+    return response, sources
 
 def process_query(query):
     return query.strip()
 
-def retrieval(query: str, category_ids: Optional[List[int]] = None, k: int = 3):
+def retrieval(query: str, category_ids: Optional[List[int]] = None, k: int = 3, score_threshold: float = 0.3):
     filter_dict = None
     if category_ids:
         filter_dict = {"category_id": {"$in": category_ids}}
     results = chroma_db.similarity_search_with_relevance_scores(query, k, filter=filter_dict)
-    documents, scores = zip(*results)
+    relevant_results = [(doc, score) for doc, score in results if score >= score_threshold]
+    if not relevant_results:
+        return [], []
+    documents, scores = zip(*relevant_results)
     return documents, scores
+
+def create_sources(documents, scores):
+    
+    source_score_map = {}
+    for doc, score in zip(documents, scores):
+        metadata = getattr(doc, "metadata", {})
+        document_id = metadata.get("document_id", "")
+        if document_id not in source_score_map:
+            source_score_map[document_id] = (doc, score)
+        elif score > source_score_map[document_id][1]:
+            source_score_map[document_id] = (doc, score)
+
+    sources = []
+    for document_id, (doc, highest_score) in source_score_map.items():
+        metadata = getattr(doc, "metadata", {})
+        sources.append({
+            "document_id": document_id,
+            "document_name": metadata.get("document_name", ""),
+            "category_name": metadata.get("category_name", ""),
+            "score": highest_score
+        })
+    return sources
 
 def augmentation(documents):
     if not documents:
@@ -64,7 +92,9 @@ def generation(query, context):
             "content": (
                 "You are a helpful assistant that answers only from retrieved knowledge. "
                 "Retrieved information is the only source of truth. "
-                "If the answer is not in the context, say so clearly."
+                "Never guess, infer, or rely on prior knowledge."
+                "Never fill gaps with reasoning or external knowledge."
+                "Most important: If context coverage is incomplete or unclear, explicitly state that the information is missing."
             )
         },
         {

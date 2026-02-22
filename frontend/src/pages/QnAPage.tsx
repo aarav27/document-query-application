@@ -4,8 +4,9 @@ import type { SearchRequest } from "@/util/types";
 import '@/styles/qna.css';
 
 interface SourceDocument {
-  document_name: string;
   document_id: number;
+  document_name: string;
+  category_name: string;
   score: number;
 }
 
@@ -184,10 +185,18 @@ export default function QnAPage() {
                                 <div className="source-details">
                                   <Link 
                                     to={`/document/${source.document_id}`}
+                                    state={{category: source.category_name, routeBack: "/qna"}}
                                     className="source-name"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                   >
                                     {source.document_name}
                                   </Link>
+                                  <div className="source-meta">
+                                    <span className="category-badge">
+                                      Category: {source.category_name}
+                                    </span>
+                                  </div>
                                   <div className="source-meta">
                                     <span className="relevance-badge">
                                       Relevance: {(source.score * 100).toFixed(0)}%
