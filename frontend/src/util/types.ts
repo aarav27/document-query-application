@@ -4,6 +4,7 @@ export interface DocumentType {
   description: string;
   s3_document_key: string;
   category_id: number;
+  category: string
 }
 
 export interface DocumentCreateType {

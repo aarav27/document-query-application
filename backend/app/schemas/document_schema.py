@@ -10,6 +10,13 @@ class DocumentBase(BaseModel):
 class DocumentCreate(DocumentBase):
     category_name: str
 
+class DocumentDownloadRequest(BaseModel):
+    name: str
+    s3_document_key: str
+
+class DocumentUploadRequest(BaseModel):
+    name: str
+
 class Document(DocumentBase):
     id: int
     class Config:

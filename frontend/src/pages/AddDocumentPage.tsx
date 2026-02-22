@@ -57,7 +57,13 @@ export default function AddDocumentPage(){
             showLoader();
             
             // 1. Generate an S3 presigned URL for uploading
-            const upload_url_response = await fetch(`http://127.0.0.1:8000/documents/upload-url/${uploadedFile.name}`);
+            const upload_url_response = await fetch(`http://127.0.0.1:8000/documents/upload-url`, {
+                method: 'POST',
+                headers: {
+                     "Content-Type": "application/json",
+                },
+                body: JSON.stringify({name : uploadedFile.name})
+            });
             if(!upload_url_response.ok){
                 throw new Error(`Error Status: ${upload_url_response.status}`);
             }
