@@ -2,7 +2,7 @@ import fitz
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import pymupdf4llm
 from app.core.s3 import s3_client, AWS_S3_BUCKET
-from app.models.document_model import Document as DocumentModel
+from app.models import document_model
 from app.rag.vector_stores import chroma_db
 
 splitter = RecursiveCharacterTextSplitter(
@@ -11,7 +11,7 @@ splitter = RecursiveCharacterTextSplitter(
 )
 
 # @celery_client.task
-def ingest_document_vectordb(new_document: DocumentModel):
+def ingest_document_vectordb(new_document: document_model.Document):
 
     # 1. Download PDF from S3
     file = s3_client.get_object(Bucket=AWS_S3_BUCKET, Key=new_document.s3_document_key)
@@ -28,18 +28,17 @@ def ingest_document_vectordb(new_document: DocumentModel):
     chroma_db.add_texts(
         texts=chunks,
         metadatas=[
-            {
-                "category_id": new_document.category_id,
+            {   
                 "document_id": new_document.id,
                 "document_name": new_document.name,
                 "description": new_document.description,
+                "category_name": new_document.category,
                 "s3_document_key": new_document.s3_document_key,
                 "chunk_id": i+1
             }
             for i in range(len(chunks))
         ]
     )
-    chroma_db.persist()
 
 def delete_document_vectordb(document_id: int):
     chroma_db.delete(
@@ -47,4 +46,3 @@ def delete_document_vectordb(document_id: int):
             "document_id": document_id
         }
     )
-    chroma_db.persist()
