@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import { useDocumentsAndCategories } from "@/components/FetchData";
@@ -20,12 +20,6 @@ export default function SearchPage() {
     const categoryIdNameMap = Object.fromEntries(
         Object.entries(categoryMap).map(([categoryName, categoryID]) => [categoryID, categoryName])
     )
-
-    useEffect(() => {
-        if (searchInput !== "") {
-            handleSearch();
-        }
-    }, [selectedCategory]);
 
     const handleSearch = async () => {
         if (searchInput === "") {
@@ -135,7 +129,7 @@ export default function SearchPage() {
                 {!hasSearched && <></>}
                 
                 {/* 2. Loading search */}
-                {hasSearched && isSearching && (
+                {isSearching && (
                     <div className="search-loading">
                         Searching documents ...
                     </div>
