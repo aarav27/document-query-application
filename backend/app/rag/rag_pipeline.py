@@ -1,7 +1,7 @@
 import logging
 from typing import List, Optional
 
-from app.rag.document_pipeline import chroma_db
+from app.rag.vector_stores import get_chroma_client
 from app.rag.models import get_llm
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -23,6 +23,7 @@ def retrieval(query: str, category_ids: Optional[List[int]] = None, k: int = 3, 
     filter_dict = None
     if category_ids:
         filter_dict = {"category_id": {"$in": category_ids}}
+    chroma_db = get_chroma_client()
     results = chroma_db.similarity_search_with_relevance_scores(query, k, filter=filter_dict)
     relevant_results = [(doc, score) for doc, score in results if score >= score_threshold]
     if not relevant_results:

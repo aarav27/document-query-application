@@ -3,7 +3,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 import pymupdf4llm
 from app.core.s3 import s3_client, AWS_S3_BUCKET
 from app.models import document_model
-from app.rag.vector_stores import chroma_db
+from app.rag.vector_stores import get_chroma_client
 
 splitter = RecursiveCharacterTextSplitter(
     chunk_size=800,
@@ -25,6 +25,7 @@ def ingest_document_vectordb(new_document: document_model.Document, category_nam
     chunks = splitter.split_text(markdown_text)
 
     # 4. Add chunks to vector DB
+    chroma_db = get_chroma_client("dev")
     chroma_db.add_texts(
         texts=chunks,
         metadatas=[
