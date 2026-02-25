@@ -1,57 +1,72 @@
 import logging
 from typing import List, Optional
 
-from app.rag.vector_stores import get_chroma_client
+from app.rag.vector_stores import get_vector_store
 from app.rag.models import get_llm
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def qna_pipeline(query: str, category_ids: list[int] | None = None):
     processed_query = process_query(query)
-    documents, scores = retrieval(processed_query, category_ids)
-    sources = create_sources(documents, scores)
+    documents = retrieval(processed_query, category_ids)
+    sources = create_sources(documents)
     if not documents:
         return "The provided sources do not contain any information about this subject.", sources
     context = augmentation(documents)
     response = generation(processed_query, context)
+    if "don't have sufficient information to answer" in response:
+        sources = []
     return response, sources
 
 def process_query(query):
     return query.strip()
 
-def retrieval(query: str, category_ids: Optional[List[int]] = None, k: int = 3, score_threshold: float = 0.3):
+def retrieval(query: str, category_ids: Optional[List[int]] = None, k: int = 3, score_threshold: float = -100):
     filter_dict = None
     if category_ids:
         filter_dict = {"category_id": {"$in": category_ids}}
-    chroma_db = get_chroma_client()
-    results = chroma_db.similarity_search_with_relevance_scores(query, k, filter=filter_dict)
-    relevant_results = [(doc, score) for doc, score in results if score >= score_threshold]
-    if not relevant_results:
-        return [], []
-    documents, scores = zip(*relevant_results)
-    return documents, scores
+    vector_store = get_vector_store()
+    results = vector_store.similarity_search(query, k, filter=filter_dict)
+    documents = results
+    # relevant_results = [(doc, score) for doc, score in results if score >= score_threshold]
+    # if not relevant_results:
+    #     return [], []
+    # documents, scores = zip(*relevant_results)
+    return documents
 
-def create_sources(documents, scores):
-    
-    source_score_map = {}
-    for doc, score in zip(documents, scores):
+def create_sources(documents):
+    sources = []
+    doc_set = set()
+    for doc in documents:
         metadata = getattr(doc, "metadata", {})
         document_id = metadata.get("document_id", "")
-        if document_id not in source_score_map:
-            source_score_map[document_id] = (doc, score)
-        elif score > source_score_map[document_id][1]:
-            source_score_map[document_id] = (doc, score)
-
-    sources = []
-    for document_id, (doc, highest_score) in source_score_map.items():
-        metadata = getattr(doc, "metadata", {})
-        sources.append({
-            "document_id": document_id,
-            "document_name": metadata.get("document_name", ""),
-            "category_name": metadata.get("category_name", ""),
-            "score": highest_score
-        })
+        if document_id not in doc_set:
+            sources.append({
+                "document_id": document_id,
+                "document_name": metadata.get("document_name", ""),
+                "category_name": metadata.get("category_name", ""),
+                "score": 0.5
+            })
     return sources
+    # source_score_map = {}
+    # for doc, score in zip(documents, scores):
+    #     metadata = getattr(doc, "metadata", {})
+    #     document_id = metadata.get("document_id", "")
+    #     if document_id not in source_score_map:
+    #         source_score_map[document_id] = (doc, score)
+    #     elif score > source_score_map[document_id][1]:
+    #         source_score_map[document_id] = (doc, score)
+
+    # sources = []
+    # for document_id, (doc, highest_score) in source_score_map.items():
+    #     metadata = getattr(doc, "metadata", {})
+    #     sources.append({
+    #         "document_id": document_id,
+    #         "document_name": metadata.get("document_name", ""),
+    #         "category_name": metadata.get("category_name", ""),
+    #         "score": highest_score
+    #     })
+    # return sources
 
 def augmentation(documents):
     if not documents:
@@ -91,16 +106,15 @@ def generation(query, context):
         {
             "role": "system",
             "content": (
-                "You are a helpful assistant that answers only from retrieved knowledge. "
-                "Retrieved information is the only source of truth. "
-                "Never guess, infer, or rely on prior knowledge."
-                "Never fill gaps with reasoning or external knowledge."
-                "Most important: If context coverage is incomplete or unclear, explicitly state that the information is missing."
+                "You answer questions using ONLY the provided sources.\n"
+                "Do NOT use prior knowledge.\n"
+                "Do NOT infer or guess.\n"
+                "If the answer is not explicitly contained in the sources, respond with exactly: \"I don't have sufficient information to answer\" and do not explain why and do not mention the sources."
             )
         },
         {
             "role": "user",
-            "content": f"Context:\n{context}\n\nQuestion: {query}"
+            "content": f"Sources:\n{context}\n\nQuestion: {query}"
         }
     ]
 

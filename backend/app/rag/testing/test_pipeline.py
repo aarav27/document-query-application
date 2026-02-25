@@ -1,5 +1,5 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from app.rag.vector_stores import get_chroma_client
+from app.rag.vector_stores import get_vector_store
 import os
 import logging
 
@@ -44,7 +44,7 @@ def process_test_documents():
             documents.append(current_doc)
     
 
-    chroma_db = get_chroma_client("test")
+    vector_store = get_vector_store()
     for doc in documents:
         text = doc.get("text", "").strip()
         if not text:
@@ -55,7 +55,7 @@ def process_test_documents():
             logging.info(doc.get("id", ""))
             continue
 
-        chroma_db.add_texts(
+        vector_store.add_texts(
             texts=chunks,
             metadatas=[
                 {   

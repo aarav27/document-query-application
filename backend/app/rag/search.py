@@ -1,7 +1,7 @@
 from typing import List, Optional
-from app.rag.vector_stores import get_chroma_client
+from app.rag.vector_stores import get_vector_store
 
-def semantic_search(query, category_ids: Optional[List[int]] = None,):
+def hybrid_search(query, category_ids: Optional[List[int]] = None):
     search_kwargs={
         "k": 5,
         "fetch_k": 20
@@ -10,9 +10,9 @@ def semantic_search(query, category_ids: Optional[List[int]] = None,):
         search_kwargs["filter"] = {
             "category_id": {"$in": category_ids}
         }
-    chroma_db = get_chroma_client()
-    retriever = chroma_db.as_retriever(
-        search_type="mmr",
+    vector_store = get_vector_store()
+    retriever = vector_store.as_retriever(
+        search_type="similarity",
         search_kwargs=search_kwargs,
     )
     vectordb_docs = retriever.invoke(query)

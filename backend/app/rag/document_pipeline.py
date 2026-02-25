@@ -1,9 +1,10 @@
 import fitz
+from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import pymupdf4llm
 from app.core.s3 import s3_client, AWS_S3_BUCKET
 from app.models import document_model
-from app.rag.vector_stores import get_chroma_client
+from app.rag.vector_stores import get_vector_store
 
 splitter = RecursiveCharacterTextSplitter(
     chunk_size=800,
@@ -25,8 +26,8 @@ def ingest_document_vectordb(new_document: document_model.Document, category_nam
     chunks = splitter.split_text(markdown_text)
 
     # 4. Add chunks to vector DB
-    chroma_db = get_chroma_client("dev")
-    chroma_db.add_texts(
+    vector_store = get_vector_store()
+    vector_store.add_texts(
         texts=chunks,
         metadatas=[
             {   
@@ -41,8 +42,9 @@ def ingest_document_vectordb(new_document: document_model.Document, category_nam
     )
 
 def delete_document_vectordb(document_id: int):
-    chroma_db.delete(
-        where={
-            "document_id": document_id
-        }
+    # TODO: Add chunk count to Postgres
+    vector_store = get_vector_store()
+    chunk_count = 20
+    vector_store.delete(
+        ids = [f"{document_id}_{i}" for i in range(chunk_count)]
     )
