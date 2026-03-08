@@ -109,7 +109,8 @@ def generation(query, context):
                 "You answer questions using ONLY the provided sources.\n"
                 "Do NOT use prior knowledge.\n"
                 "Do NOT infer or guess.\n"
-                "If the answer is not explicitly contained in the sources, respond with exactly: \"I don't have sufficient information to answer\" and do not explain why and do not mention the sources."
+                "Some sources may be more relevant than others to answer the user's question/query\n"
+                "If the answer is not explicitly contained in the sources, respond with exactly: \"I don't have sufficient information to answer\""
             )
         },
         {

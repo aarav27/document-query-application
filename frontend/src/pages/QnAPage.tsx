@@ -248,7 +248,7 @@ export default function QnAPage() {
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyPress}
-              rows={1}
+              rows={2}
               disabled={isLoading}
             />
             <button
