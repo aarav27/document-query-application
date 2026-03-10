@@ -197,11 +197,11 @@ export default function QnAPage() {
                                       Category: {source.category_name}
                                     </span>
                                   </div>
-                                  <div className="source-meta">
+                                  {/* <div className="source-meta">
                                     <span className="relevance-badge">
                                       Relevance: {(source.score * 100).toFixed(0)}%
                                     </span>
-                                  </div>
+                                  </div> */}
                                 </div>
                               </div>
                             </div>

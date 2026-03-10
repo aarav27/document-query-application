@@ -111,14 +111,7 @@ def augmentation(documents: List[Dict]) -> str:
         category_name = doc.get("category_name", "Unknown")
         description = doc.get("description", "")
         chunk_id = doc.get("chunk_id", "Unknown")
-        score = doc.get("score", "Unknown Score")
         chunk_content = doc.get("chunk_content", "")
-
-        logger.info("Document")
-        logger.info(document_name)
-        logger.info(score)
-        logger.info(chunk_content)
-
         
         # Format source section
         section = f"""[Source {source_index}]
@@ -126,7 +119,6 @@ Category Name: {category_name}
 Document Name: {document_name}
 Document Description: {description}
 Chunk Number: {chunk_id}
-Chunk Relevance Score: {score:.2%}
 Chunk Content:
 {chunk_content}"""
 
@@ -157,7 +149,6 @@ def generation(query: str, context: str) -> str:
                 "You answer questions using ONLY the provided sources.\n"
                 "Do NOT use prior knowledge.\n"
                 "Do NOT infer or guess.\n"
-                "Some sources may be more relevant than others to answer the user's question/query\n"
                 "If the answer is not explicitly contained in the sources, respond with exactly: \"I don't have sufficient information to answer\"\n"
             )
         },
