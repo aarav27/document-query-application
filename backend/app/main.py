@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.database import engine, Base
 from app.api.router import api_router
+from app.rag.models import get_llm
 
 app = FastAPI()
 
@@ -18,5 +19,6 @@ app.add_middleware(
 async def startup():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+    get_llm()
 
 app.include_router(api_router)
