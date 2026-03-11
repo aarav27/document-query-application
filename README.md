@@ -111,11 +111,9 @@ User Query → Processing -> Retrieval (Hybrid) → Augmentation -> LLM Generati
     - Hybrid Search
     - RAG Pipeline
 
-**Databases**
+**Databases and Storage**
 - **PostgreSQL**: Document metadata and categories
 - **Qdrant**: Vector embeddings (dense and spare) for hybrid search
-
-**Storage**
 - **AWS S3**: PDF files and processed documents
 
 
@@ -126,14 +124,14 @@ User Query → Processing -> Retrieval (Hybrid) → Augmentation -> LLM Generati
     - `Qdrant/bm25` to generate sparse Embeddings for keyword search using BM25
 
 ### Semantic Search
-- Computes cosine similarity to determine document relevance to a search query (to capture similar contextual meaning)
+- Computes cosine similarity to determine document relevance to a query (to capture similar contextual meaning)
 
 ### BM25 Search
-- Ranking algorithm to determine document relevance to a search query (for exact keyword matching)
+- Ranking algorithm to determine document relevance to a query (for exact keyword matching)
 - Calculates scores based on 
-    (1) term frequency (TF)
-    (2) inverse document frequency (IDF)
-    (3) document length normalization
+    - (1) term frequency (TF)
+    - (2) inverse document frequency (IDF)
+    - (3) document length normalization
 
 ### LLM Generation
 - Model: `Qwen/Qwen2-1.5B-Instruct`
