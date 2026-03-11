@@ -15,22 +15,22 @@ DocQuery is a application that lets you upload and interact with your PDFs. It h
 
 ## Core Features
 
-### 1. Document Handling
+#### 1. Document Handling
 - Upload, view, and delete PDF documents
 - Store and display document metadata
 - Organize documents by custom categories for better management
 
-### 2. Document Search
+#### 2. Document Search
 - Find relevant documents using combining keyword search (exact text matching) and semantic search (natural language and contextual meaning)
 
-### 3. Q&A
+#### 3. Q&A
 - Ask questions about documents that synthesizes information across multiple documents
 - Generates concise and accurate answers and cites relevant document sources in responses
 
 
 ## Usage
 
-### Categories
+#### Categories
 
 1. Go to the "Home" section
 2. Click "Add Category"
@@ -39,14 +39,14 @@ DocQuery is a application that lets you upload and interact with your PDFs. It h
 5. Click "Delete Category" to delete category and all documents inside it
 6. Select a category using the category dropdown
 
-### Documents
+#### Documents
 
 1. Go to the "Home" section
 2. Click the toggle for a category to see document information
 3. Click "View" to view a document
 4. Click "Delete" to delete a document
 
-### Uploading Documents
+#### Uploading Documents
 
 1. Go to the "Home" section
 2. Click "Add Document"
@@ -55,7 +55,7 @@ DocQuery is a application that lets you upload and interact with your PDFs. It h
 5. Choose or create a category
 6. Click "Upload"
 
-### Document Search
+#### Document Search
 
 1. Go to the "Search" section
 2. Enter your search query
@@ -63,7 +63,7 @@ DocQuery is a application that lets you upload and interact with your PDFs. It h
 4. Click 'View' to view the document
 5. Use filters to narrow results by category
 
-### Q&A
+#### Q&A
 
 1. Navigate to the "Q&A" section
 2. Enter a query about the documents
@@ -73,17 +73,17 @@ DocQuery is a application that lets you upload and interact with your PDFs. It h
 
 ## Data Flow
 
-### Document Ingestion
+#### Document Ingestion
 ```
 PDF Upload → Text Extraction → Chunking → Embedding Generation → Vector Store
 ```
 
-### Document Search
+#### Document Search
 ```
 User Query → Hybrid Search → Document Results
 ```
 
-### Q&A
+#### Q&A
 ```
 User Query → Processing -> Retrieval (Hybrid) → Augmentation -> LLM Generation → LLM Response
 ```
@@ -91,7 +91,7 @@ User Query → Processing -> Retrieval (Hybrid) → Augmentation -> LLM Generati
 
 ## Application Components
 
-**Frontend (React + TypeScript)**
+#### Frontend (React)
 - Document Dashboard Page (Home)
     - Document and Category Management and View
     - Category Filter
@@ -100,7 +100,7 @@ User Query → Processing -> Retrieval (Hybrid) → Augmentation -> LLM Generati
 - Search Page
 - Q&A Page
 
-**Backend (FastAPI + Python)**
+#### Backend (FastAPI)
 - Endpoints
     - Documents
     - Categories
@@ -111,48 +111,49 @@ User Query → Processing -> Retrieval (Hybrid) → Augmentation -> LLM Generati
     - Hybrid Search
     - RAG Pipeline
 
-**Databases and Storage**
+#### Databases and Storage
 - **PostgreSQL**: Document metadata and categories
 - **Qdrant**: Vector embeddings (dense and spare) for hybrid search
 - **AWS S3**: PDF files and processed documents
 
 
 ## RAG Architecture
-### Vector Database
+
+#### Vector Database
 - Qdrant stores dense and sparse embeddings to perform hybrid search
     - `sentence-transformers/all-MiniLM-L6-v2` to generate dense embeddings for semantic search 
     - `Qdrant/bm25` to generate sparse Embeddings for keyword search using BM25
 
-### Semantic Search
+#### Semantic Search
 - Computes cosine similarity to determine document relevance to a query (to capture similar contextual meaning)
 
-### BM25 Search
+#### BM25 Search
 - Ranking algorithm to determine document relevance to a query (for exact keyword matching)
 - Calculates scores based on 
     - (1) term frequency (TF)
     - (2) inverse document frequency (IDF)
     - (3) document length normalization
 
-### LLM Generation
+#### LLM Generation
 - Model: `Qwen/Qwen2-1.5B-Instruct`
 - Uses retrieved documents from hybrid search as context to augment response generation
 
 
 ## Installation & Setup
 
-### 0. Prerequisites
+#### 0. Prerequisites
 - Node.js 16+ (for frontend development)
 - Python 3.9+ (for backend)
 - PostgreSQL 14+
 - Docker (for containerized deployment)
 
-### 1. Clone the Repository
+#### 1. Clone the Repository
 ```bash
 git clone https://github.com/aarav27/document-query-application.git
 cd document-query-application
 ```
 
-### 2. Backend Setup
+#### 2. Backend Setup
 
 ```bash
 cd backend
@@ -181,7 +182,7 @@ uvicorn app.main:app --reload
 
 Backend will be available at `http://localhost:8000`
 
-### 3. Frontend Setup
+#### 3. Frontend Setup
 
 ```bash
 cd frontend
@@ -195,7 +196,7 @@ npm start
 
 Frontend will be available at `http://localhost:5173`
 
-### 4. Database Setup
+#### 4. Database Setup
 
 ```bash
 # Start PostgreSQL container
@@ -215,7 +216,7 @@ docker cp db-init/init.sql docquery-postgres:/init.sql
 docker exec -it docquery-postgres psql -U docuser -d docquery -f /init.sql
 ```
 
-### 5. Vector Database Setup (Qdrant)
+#### 5. Vector Database Setup (Qdrant)
 
 ```bash
 # Using Docker
@@ -258,7 +259,7 @@ docquery/
 
 ## API Endpoints
 
-### Documents
+#### Documents
 - `GET /api/documents` - Retrieve all documents
 - `GET /api/documents/{id}` - Retrieve a specific document
 - `POST /api/documents` - Add a document
@@ -266,14 +267,14 @@ docquery/
 - `POST /api/documents/download-url` - Generate download URL for document
 - `POST /api/documents/upload-url` - Generate upload URL for document
 
-### Categories
+#### Categories
 - `GET /api/categories` - Retrieve all categories
 - `POST /api/categories` - Create a category
 - `DELETE /api/categories/{id}` - Delete a category
 
-### Search
+#### Search
 - `POST /api/search` - Hybrid search across documents
 
-### Q&A
+#### Q&A
 - `POST /api/rag/qa` - Ask a question about documents and get an answer
 
