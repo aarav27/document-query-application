@@ -1,6 +1,18 @@
 # DocQuery
 DocQuery is a application that lets you upload and interact with your PDFs. It has a hybrid search engine and Q&A agent powered by Retrieval-Augmented Generation (RAG) to search and retrieve information from PDF documents.
 
+
+## Tech Stack
+
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![AWS S3](https://img.shields.io/badge/AWS%20S3-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white)
+![Qdrant](https://img.shields.io/badge/Qdrant-EF2D5E?style=for-the-badge&logo=qdrant&logoColor=white)
+![LangChain](https://img.shields.io/badge/LangChain-121212?style=for-the-badge&logo=chainlink&logoColor=white)
+
+
 ## Core Features
 
 ### 1. Document Handling
@@ -11,65 +23,9 @@ DocQuery is a application that lets you upload and interact with your PDFs. It h
 ### 2. Document Search
 - Find relevant documents using combining keyword search (exact text matching) and semantic search (natural language and contextual meaning)
 
-### 3. Q&A Pipeline
+### 3. Q&A
 - Ask questions about documents that synthesizes information across multiple documents
 - Generates concise and accurate answers and cites relevant document sources in responses
-
-## Technologies Used
-
-![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
-![AWS S3](https://img.shields.io/badge/AWS%20S3-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white)
-![Qdrant](https://img.shields.io/badge/Qdrant-EF2D5E?style=for-the-badge&logo=qdrant&logoColor=white)
-![LangChain](https://img.shields.io/badge/LangChain-121212?style=for-the-badge&logo=chainlink&logoColor=white)
-
-## Data Flow
-
-### Document Ingestion
-```
-PDF Upload → Text Extraction → Chunking → Embedding Generation → Vector Store
-```
-
-### Document Search
-```
-User Query → Hybrid Search → Document Results
-```
-
-### Q&A
-```
-User Query → Processing -> Retrieval (Hybrid) → Augmentation -> LLM Generation → LLM Response
-```
-
-## Application Components
-
-**Frontend (React + TypeScript)**
-- Document Dashboard Page (Home)
-    - Document and Category Management and View
-    - Category Filter
-    - Add/Remove Documents and Categories
-- Add Document Page
-- Search Page
-- Q&A Page
-
-**Backend (FastAPI + Python)**
-- Endpoints
-    - Documents
-    - Categories
-    - Search
-    - Q&A
-- Core Logic
-    - Document Ingestion
-    - Hybrid Search
-    - RAG Pipeline
-
-**Databases**
-- **PostgreSQL**: Document metadata and categories
-- **Qdrant**: Vector embeddings (dense and spare) for hybrid search
-
-**Storage**
-- **AWS S3**: PDF files and processed documents
 
 
 ## Usage
@@ -113,6 +69,75 @@ User Query → Processing -> Retrieval (Hybrid) → Augmentation -> LLM Generati
 2. Enter a query about the documents
 3. View the LLM generated answer with cited sources
 4. Continue the conversation
+
+
+## Data Flow
+
+### Document Ingestion
+```
+PDF Upload → Text Extraction → Chunking → Embedding Generation → Vector Store
+```
+
+### Document Search
+```
+User Query → Hybrid Search → Document Results
+```
+
+### Q&A
+```
+User Query → Processing -> Retrieval (Hybrid) → Augmentation -> LLM Generation → LLM Response
+```
+
+
+## Application Components
+
+**Frontend (React + TypeScript)**
+- Document Dashboard Page (Home)
+    - Document and Category Management and View
+    - Category Filter
+    - Add/Remove Documents and Categories
+- Add Document Page
+- Search Page
+- Q&A Page
+
+**Backend (FastAPI + Python)**
+- Endpoints
+    - Documents
+    - Categories
+    - Search
+    - Q&A
+- Core Logic
+    - Document Ingestion
+    - Hybrid Search
+    - RAG Pipeline
+
+**Databases**
+- **PostgreSQL**: Document metadata and categories
+- **Qdrant**: Vector embeddings (dense and spare) for hybrid search
+
+**Storage**
+- **AWS S3**: PDF files and processed documents
+
+
+## RAG Architecture
+### Vector Database
+- Qdrant stores dense and sparse embeddings to perform hybrid search
+    - `sentence-transformers/all-MiniLM-L6-v2` to generate dense embeddings for semantic search 
+    - `Qdrant/bm25` to generate sparse Embeddings for keyword search using BM25
+
+### Semantic Search
+- Computes cosine similarity to determine document relevance to a search query (to capture similar contextual meaning)
+
+### BM25 Search
+- Ranking algorithm to determine document relevance to a search query (for exact keyword matching)
+- Calculates scores based on 
+    (1) term frequency (TF)
+    (2) inverse document frequency (IDF)
+    (3) document length normalization
+
+### LLM Generation
+- Model: `Qwen/Qwen2-1.5B-Instruct`
+- Uses retrieved documents from hybrid search as context to augment response generation
 
 
 ## Installation & Setup
@@ -231,6 +256,7 @@ docquery/
 └── db-init                    # Database setup
 │   └── init.sql               # Application Schema
 ```
+
 
 ## API Endpoints
 
