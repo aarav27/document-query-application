@@ -8,6 +8,7 @@ DocQuery is a application that lets you upload and interact with your PDFs. It h
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/postgresql-4169e1?style=for-the-badge&logo=postgresql&logoColor=white)
 ![AWS S3](https://img.shields.io/badge/AWS%20S3-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white)
 ![Qdrant](https://img.shields.io/badge/Qdrant-EF2D5E?style=for-the-badge&logo=qdrant&logoColor=white)
 ![LangChain](https://img.shields.io/badge/LangChain-121212?style=for-the-badge&logo=chainlink&logoColor=white)
@@ -85,7 +86,7 @@ User Query → Hybrid Search → Document Results
 
 #### Q&A
 ```
-User Query → Processing -> Retrieval (Hybrid) → Augmentation -> LLM Generation → LLM Response
+User Query → Processing → Retrieval (Hybrid) → Augmentation → LLM Response
 ```
 
 
@@ -144,7 +145,7 @@ User Query → Processing -> Retrieval (Hybrid) → Augmentation -> LLM Generati
 #### 0. Prerequisites
 - Node.js 16+ (for frontend development)
 - Python 3.9+ (for backend)
-- PostgreSQL 14+
+- PostgreSQL 14+ (for database)
 - Docker (for containerized deployment)
 
 #### 1. Clone the Repository
